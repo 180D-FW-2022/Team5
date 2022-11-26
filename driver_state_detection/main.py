@@ -119,11 +119,6 @@ def main():
                 if frame_det is not None:
                     frame = frame_det
 
-                # if the driver is tired, show and alert on screen
-                if tired:  
-                    cv2.putText(frame, "TIRED!", (10, 280),
-                                cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1, cv2.LINE_AA)
-
                 # evaluate the scores for EAR, GAZE and HEAD POSE
                 asleep, looking_away, distracted = Scorer.eval_scores(
                     ear, gaze, roll, pitch, yaw)  

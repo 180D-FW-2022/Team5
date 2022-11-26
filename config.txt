@@ -1,0 +1,2 @@
+{"user_id": "User1",
+"enable_suggest": true}

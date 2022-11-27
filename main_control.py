@@ -45,9 +45,9 @@ class Main_Control:
             data_src, data_str = uart_receiver.extract_msg(raw_data_str)
 
             # Inward Facing Camera connected to Teensy UART Pins 9/10 (Serial2)
-            # Forward Facing Camera (Stop Sign Detection) connectedto Teensy UART Pins 7/8
             if (data_src == 1):
                 self.d1msg = data_str;
+            # Forward Facing Camera (Stop Sign Detection) connectedto Teensy UART Pins 7/8
             elif (data_src == 2):
                 self.d2msg = data_str;
 
@@ -79,7 +79,7 @@ class Main_Control:
                 approach_stop()
 
             # check gaze
-            if self.should_suggest and distracted():
+            if self.should_suggest and distracted(self.d2msg):
                 driver_distracted()
 
             # check stop blown

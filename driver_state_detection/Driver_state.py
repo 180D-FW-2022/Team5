@@ -2,6 +2,7 @@ import cv2
 import dlib
 import numpy as np
 import time
+import serial
 
 from Utils import get_face_area
 from Eye_Dector_Module import EyeDetector as EyeDet
@@ -10,7 +11,10 @@ from Attention_Scorer_Module import AttentionScorer as AttScorer
 from constants import *
 
 class DriverState:
-    def __init__(self):
+    def __init__(self, ser):
+        # serial port object for uart. Replace with -1 if not using
+        self.ser = ser
+
         self.ctime = 0  # current time (used to compute FPS)
         self.ptime = 0  # past time (used to compute FPS)
         self.prev_time = 0  # previous time variable, used to set the FPS limit
@@ -117,6 +121,8 @@ class DriverState:
 
                 return perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted
 
+        return -1, -1, -1, -1, -1, False, False, False, False
+
     def __prettyPrint(self, perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted):
         print(f'UPDATE LOG: \n\
             EAR: {ear}, \n\
@@ -145,13 +151,20 @@ class DriverState:
             fps = 1.0 / float(self.ctime - self.ptime)
             self.ptime = self.ctime
 
-            self.update(verbose=True)
+            perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted = self.update(verbose=True)
+
+            if tx:
+                payload = f'{ear},{perclos_score},{roll},{pitch},{yaw},{tired},{asleep},\
+                        {looking_away},{distracted}'
+                self.__txToController(payload)
 
     # Send the data via teensy UART buffer to RX controller Rpi
-    def txToController(self):
-        pass
-
+    def __txToController(self, payload):
+        # WARNING: imports are weird so hard-coding this serial transmit
+        b = payload.encode('utf-8')
+        ser.write(b)
+        #uart_send.write_str(self.ser, payload)
 
 if __name__ == "__main__":
-    ds = DriverState()
+    ds = DriverState(-1)
     ds.runContinuously()

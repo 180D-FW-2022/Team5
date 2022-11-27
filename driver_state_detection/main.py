@@ -52,7 +52,7 @@ def main():
     # NOTE: set verbose to True for additional printed information about the scores
     Scorer = AttScorer(fps_lim, ear_tresh=0.15, ear_time_tresh=2, gaze_tresh=0.2,
                        gaze_time_tresh=2, pitch_tresh=35, yaw_tresh=28, pose_time_tresh=2.5, verbose=False)
-    
+
     # capture the input from the default system camera (camera number 0)
     cap = cv2.VideoCapture(CAPTURE_SOURCE)
     if not cap.isOpened():  # if the camera can't be opened exit the program
@@ -79,6 +79,8 @@ def main():
             ctime = time.perf_counter()
             fps = 1.0 / float(ctime - ptime)
             ptime = ctime
+            cv2.putText(frame, "FPS:" + str(round(fps, 0)), (10, 400), cv2.FONT_HERSHEY_PLAIN, 2,
+                        (255, 0, 255), 1)
 
             # transform the BGR frame in grayscale
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -119,13 +121,48 @@ def main():
                 if frame_det is not None:
                     frame = frame_det
 
+                # show the real-time EAR score
+                if ear is not None:
+                    cv2.putText(frame, "EAR:" + str(round(ear, 3)), (10, 50),
+                                cv2.FONT_HERSHEY_PLAIN, 2, (255, 255, 255), 1, cv2.LINE_AA)
+
+                # show the real-time Gaze Score
+                if gaze is not None:
+                    cv2.putText(frame, "Gaze Score:" + str(round(gaze, 3)), (10, 80),
+                                cv2.FONT_HERSHEY_PLAIN, 2, (255, 255, 255), 1, cv2.LINE_AA)
+
+                # show the real-time PERCLOS score
+                cv2.putText(frame, "PERCLOS:" + str(round(perclos_score, 3)), (10, 110),
+                            cv2.FONT_HERSHEY_PLAIN, 2, (255, 255, 255), 1, cv2.LINE_AA)
+
+                # if the driver is tired, show and alert on screen
+                if tired:
+                    cv2.putText(frame, "TIRED!", (10, 280),
+                                cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1, cv2.LINE_AA)
+
                 # evaluate the scores for EAR, GAZE and HEAD POSE
                 asleep, looking_away, distracted = Scorer.eval_scores(
-                    ear, gaze, roll, pitch, yaw)  
+                    ear, gaze, roll, pitch, yaw)
 
-                print("GAZE: " + str(gaze))
-                print("EAR: " + str(ear))
-                print("PERCLOS: " + str(perclos_score))
+                # if the state of attention of the driver is not normal, show an alert on screen
+                if asleep:
+                    cv2.putText(frame, "ASLEEP!", (10, 300),
+                                cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1, cv2.LINE_AA)
+                if looking_away:
+                    cv2.putText(frame, "LOOKING AWAY!", (10, 320),
+                                cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1, cv2.LINE_AA)
+                if distracted:
+                    cv2.putText(frame, "DISTRACTED!", (10, 340),
+                                cv2.FONT_HERSHEY_PLAIN, 1, (0, 0, 255), 1, cv2.LINE_AA)
+
+            cv2.imshow("Frame", frame)  # show the frame on screen
+
+        # if the key "q" is pressed on the keyboard, the program is terminated
+        if cv2.waitKey(20) & 0xFF == ord('q'):
+            break
+
+    cap.release()
+    cv2.destroyAllWindows()
 
     return
 

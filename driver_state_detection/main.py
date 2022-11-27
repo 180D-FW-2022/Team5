@@ -79,6 +79,7 @@ def main():
             ctime = time.perf_counter()
             fps = 1.0 / float(ctime - ptime)
             ptime = ctime
+
             cv2.putText(frame, "FPS:" + str(round(fps, 0)), (10, 400), cv2.FONT_HERSHEY_PLAIN, 2,
                         (255, 0, 255), 1)
 

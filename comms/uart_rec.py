@@ -1,4 +1,4 @@
-import uart_proc
+from comms import uart_proc
 
 
 # Read an incoming message through UART

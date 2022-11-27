@@ -6,6 +6,8 @@ from ed_speech import SpeechDetect
 import firebase_admin
 from firebase_admin import credentials, storage, db
 import threading
+import comms.uart_proc as uart_utils
+import comms.uart_rec as uart_receiver
 
 class Main_Control:
     def __init__(self):
@@ -22,12 +24,32 @@ class Main_Control:
         self.speech = SpeechDetect(self.should_suggest)
 
         self.ref = self.database.get_ref()
+        self.ser = uart_utils.initialize_serial()
+
+        # message sent by Device 1 (TX/RX pins 9/10) and Device 2 (TX/RX pins 7/8)
+        self.d1msg = ""
+        self.d2msg = ""
 
     def change_config(self):
         f = open('config.txt', "w")
         dictionary = {"user_id": self.user, "enable_suggest": self.should_suggest}
         f.write(json.dumps(dictionary))
         f.close()
+
+    def try_uart_read(self):
+        # try reading comms from UART
+        received_data = uart_receiver.read_all(self.ser)
+        # process received string
+        if (len(received_data) != 0):       
+            raw_data_str = uart_utils.byte2str(received_data)
+            data_src, data_str = uart_receiver.extract_msg(raw_data_str)
+
+            # Inward Facing Camera connected to Teensy UART Pins 9/10 (Serial2)
+            # Forward Facing Camera (Stop Sign Detection) connectedto Teensy UART Pins 7/8
+            if (data_src == 1):
+                self.d1msg = data_str;
+            elif (data_src == 2):
+                self.d2msg = data_str;
 
     def run(self):
         suggest = True
@@ -42,6 +64,8 @@ class Main_Control:
                 self.should_suggest = should
                 self.change_config()
 
+            self.try_uart_read()
+            
             # get current speed
             speed = curr_speed()
             acc = curr_acc()

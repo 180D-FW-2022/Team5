@@ -1,4 +1,4 @@
-import uart_proc
+from comms import uart_proc
 
 def write_str(ser, data_str):
     ser.write(uart_proc.str2byte(data_str + '\0'))

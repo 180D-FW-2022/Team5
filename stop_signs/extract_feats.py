@@ -61,6 +61,7 @@ class my_detector():
 
         # Process predictions
         s = ""
+        returnable = ""
         for i, det in enumerate(pred):  # per image
             seen += 1
             
@@ -84,10 +85,14 @@ class my_detector():
                 for c in det[:, 5].unique():
                     n = (det[:, 5] == c).sum()  # detections per class
                     s += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, conf: {det[:, 4]} "  # add to string
+                
+                for i in range(det.shape[0]):
+                    returnable += "{} {} {} {}".format(det[i, 0],det[i, 1],abs(det[i, 1] - det[i, 3]),det[i, 4])
 
         
         # Print time (inference-only)
-        print(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+        # print(f"{s}{'' if len(det) else '(no detections), '}{dt[1].dt * 1E3:.1f}ms")
+        return returnable
 
         # Print results
         t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
@@ -102,11 +107,12 @@ print("loaded")
 cap = cv2.VideoCapture(0)
 while True:
     _, frame = cap.read()
-    det.my_detect(frame, 0.3)
+    r = det.my_detect(frame, 0.3)
+    print(r)
     # cv2.imshow('frame',frame)
-    k = cv2.waitKey(5) & 0xFF
-    if k == 27:
-        break
+    # k = cv2.waitKey(5) & 0xFF
+    # if k == 27:
+    #     break
 # im = cv2.imread("smallstop.png")
 # # print(im.shape)
 # # print(im.shape)

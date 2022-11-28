@@ -92,23 +92,42 @@ class my_detector():
         # Print results
         t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
         # print(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *self.imgsz)}' % t)
-        
 
-# det = my_detector([416,416])
-det = my_detector([224,224])
-print("loaded")
+def video():
+    det = my_detector([1920,1080])
+    print("loaded")
+    cap = cv2.VideoCapture('far_away.mp4')
+
+    while(cap.isOpened()):
+        ret, frame = cap.read()
+        if ret == True:
+            det.my_detect(frame, 0.3)
+            cv2.imshow('Frame',frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+        else: 
+            break
 
 
-cap = cv2.VideoCapture(0)
-while True:
-    _, frame = cap.read()
-    det.my_detect(frame, 0.3)
-    # cv2.imshow('frame',frame)
-    k = cv2.waitKey(5) & 0xFF
-    if k == 27:
-        break
-# im = cv2.imread("smallstop.png")
-# # print(im.shape)
-# # print(im.shape)
-# det.my_detect(im, 0.2)
-# detect.run(weights="runs/train/gun_yolov5s_results/weights/best.pt", imgsz=[416, 416], conf_thres=0.2, source="smallstop.png", nosave=True)
+def main():
+    # det = my_detector([416,416])
+    det = my_detector([224,224])
+    print("loaded")
+
+
+    cap = cv2.VideoCapture(0)
+    while True:
+        _, frame = cap.read()
+        det.my_detect(frame, 0.3)
+        # cv2.imshow('frame',frame)
+        k = cv2.waitKey(5) & 0xFF
+        if k == 27:
+            break
+    # im = cv2.imread("smallstop.png")
+    # # print(im.shape)
+    # # print(im.shape)
+    # det.my_detect(im, 0.2)
+    # detect.run(weights="runs/train/gun_yolov5s_results/weights/best.pt", imgsz=[416, 416], conf_thres=0.2, source="smallstop.png", nosave=True)
+
+if __name__ == "__main__":
+    video()

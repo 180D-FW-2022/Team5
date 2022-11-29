@@ -68,7 +68,7 @@ class Main_Control:
                     disable_suggestions()
                 self.change_config()
 
-            # self.try_uart_read()
+            self.try_uart_read()
             
             # get current speed
             speed = curr_speed()

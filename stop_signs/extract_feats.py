@@ -84,7 +84,7 @@ class my_detector():
                 # Print results
                 for c in det[:, 5].unique():
                     n = (det[:, 5] == c).sum()  # detections per class
-                    s += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, conf: {det[:, 4]} "  # add to string
+                    #s += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, conf: {det[:, 4]} "  # add to string
                 
                 for i in range(det.shape[0]):
                     returnable += "{} {} {} {}".format(det[i, 0],det[i, 1],abs(det[i, 1] - det[i, 3]),det[i, 4])

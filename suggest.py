@@ -22,6 +22,6 @@ def driver_distracted():
     engine.say(text)
     engine.runAndWait()
 
-warn_speed(30, 40)
-blew_stop()
-driver_distracted()
+def say_phrase(text):
+    engine.say(text)
+    engine.runAndWait()

@@ -1,4 +1,5 @@
 import json
+import sys
 from suggest import *
 from dummy import *
 from firebase_rt import *
@@ -52,7 +53,6 @@ class Main_Control:
                 self.d2msg = data_str;
 
     def run(self):
-        suggest = True
         t1 = threading.Thread(target=self.speech.detect_speech, daemon=True)
         t1.start()
         while(1):
@@ -62,9 +62,13 @@ class Main_Control:
             # update config if settings changed
             if should != self.should_suggest:
                 self.should_suggest = should
+                if should:
+                    enable_suggestions()
+                else:
+                    disable_suggestions()
                 self.change_config()
 
-            self.try_uart_read()
+            # self.try_uart_read()
             
             # get current speed
             speed = curr_speed()
@@ -85,6 +89,10 @@ class Main_Control:
             # check stop blown
             if self.should_suggest and stop_blown():
                 blew_stop()
+
+            if self.speech.shouldPowerOff():
+                power_off()
+                sys.exit()
 
 
 

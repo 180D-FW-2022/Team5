@@ -1,4 +1,5 @@
 from LSM6DSL import *
+from constants import *
 
 import sensor
 import statistics
@@ -19,17 +20,20 @@ class Accelerometer(sensor.Sensor):
         self.logY = [1 for i in range(0, medianFilterLength)]
         self.logZ = [1 for i in range(0, medianFilterLength)]
 
+        self.__initialize()
+
     def update(self):
         ACCx, ACCy, ACCz = self.readRaw()
         ACCx_f, ACCy_f, ACCz_f = self.__filter(ACCx, ACCy, ACCz)
 
         return ACCx_f, ACCy_f, ACCz_f
+        #return ACCx, ACCy, ACCz
 
     def __filter(self, ACCx, ACCy, ACCz):
         ### IIR LPF
-        ACCx =  ACCx  * self.ACC_LPF_FACTOR + self.logX[0]*(1 - self.ACC_LPF_FACTOR);
-        ACCy =  ACCy  * self.ACC_LPF_FACTOR + self.logY[0]*(1 - self.ACC_LPF_FACTOR);
-        ACCz =  ACCz  * self.ACC_LPF_FACTOR + self.logZ[0]*(1 - self.ACC_LPF_FACTOR);
+        ACCx =  ACCx  * ACC_LPF_FACTOR + self.logX[0]*(1 - ACC_LPF_FACTOR);
+        ACCy =  ACCy  * ACC_LPF_FACTOR + self.logY[0]*(1 - ACC_LPF_FACTOR);
+        ACCz =  ACCz  * ACC_LPF_FACTOR + self.logZ[0]*(1 - ACC_LPF_FACTOR);
 
         ### MEDIAN FILTER
         # remove last elements
@@ -47,19 +51,19 @@ class Accelerometer(sensor.Sensor):
 
         return x, y, z
 
-def __initialize(self):
-    ### WHO AM I CHECK
-    try:
-        LSM6DSL_WHO_AM_I_response = (bus.read_byte_data(LSM6DSL_ADDRESS, LSM6DSL_WHO_AM_I))
-    except IOError as f:
-        print('ERROR: No LSM6DSL was found...')
-        sys.exit()
-    else:
-        if (LSM6DSL_WHO_AM_I_response == 0x6A):
-            print("Found LSM6DSL for accelerometer...")
+    def __initialize(self):
+        ### WHO AM I CHECK
+        try:
+            LSM6DSL_WHO_AM_I_response = (self.bus.read_byte_data(LSM6DSL_ADDRESS, LSM6DSL_WHO_AM_I))
+        except IOError as f:
+            print('ERROR: No LSM6DSL was found...')
+            sys.exit()
+        else:
+            if (LSM6DSL_WHO_AM_I_response == 0x6A):
+                print("Found LSM6DSL for accelerometer...")
 
-    ### SETUP
-    #initialise the accelerometer
-    writeByte(LSM6DSL_ADDRESS,LSM6DSL_CTRL1_XL,0b10010011)           #ODR 3.33 kHz, +/- 2g , BW = 400hz
-    writeByte(LSM6DSL_ADDRESS,LSM6DSL_CTRL8_XL,0b11001000)           #Low pass filter enabled, BW9, composite filter
-    writeByte(LSM6DSL_ADDRESS,LSM6DSL_CTRL3_C,0b01000100)            #Enable Block Data update, increment during multi byte read
+        ### SETUP
+        #initialise the accelerometer
+        self.writeByte(LSM6DSL_CTRL1_XL,0b10010011)           #ODR 3.33 kHz, +/- 2g , BW = 400hz
+        self.writeByte(LSM6DSL_CTRL8_XL,0b11001000)           #Low pass filter enabled, BW9, composite filter
+        self.writeByte(LSM6DSL_CTRL3_C,0b01000100)            #Enable Block Data update, increment during multi byte read

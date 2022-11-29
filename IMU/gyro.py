@@ -16,13 +16,15 @@ class Gyroscope(sensor.Sensor):
         # [deg/s/LSB]  If you change the dps for gyro, you need to update this value accordingly
         self.G_GAIN = 0.070
 
+        self.__initialize()
+
     def update(self):
         GYRx, GYRy, GYRz = self.readRaw()
 
         #Convert Gyro raw to degrees per second
-        rate_gyr_x =  GYRx * G_GAIN
-        rate_gyr_y =  GYRy * G_GAIN
-        rate_gyr_z =  GYRz * G_GAIN
+        rate_gyr_x =  GYRx * self.G_GAIN
+        rate_gyr_y =  GYRy * self.G_GAIN
+        rate_gyr_z =  GYRz * self.G_GAIN
 
         return rate_gyr_x, rate_gyr_y, rate_gyr_z
 
@@ -32,7 +34,7 @@ class Gyroscope(sensor.Sensor):
     def __initialize(self):
         ### WHO AM I CHECK
         try:
-            LSM6DSL_WHO_AM_I_response = (bus.read_byte_data(LSM6DSL_ADDRESS, LSM6DSL_WHO_AM_I))
+            LSM6DSL_WHO_AM_I_response = (self.bus.read_byte_data(LSM6DSL_ADDRESS, LSM6DSL_WHO_AM_I))
         except IOError as f:
             print('ERROR: No LSM6DSL was found...')
             sys.exit()
@@ -42,4 +44,4 @@ class Gyroscope(sensor.Sensor):
 
         ### SETUP
         #initialise the gyroscope
-        writeByte(LSM6DSL_ADDRESS,LSM6DSL_CTRL2_G,0b10011100)            #ODR 3.3 kHz, 2000 dps
+        self.writeByte(LSM6DSL_CTRL2_G,0b10011100)            #ODR 3.3 kHz, 2000 dps

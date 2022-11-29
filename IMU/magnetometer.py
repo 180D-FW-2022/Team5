@@ -1,4 +1,5 @@
 from LIS3MDL import *
+from constants import *
 
 import sensor
 import statistics
@@ -29,26 +30,26 @@ class Magnetometer(sensor.Sensor):
         self.magYmax =  0
         self.magZmax =  0
 
-        self.MAG_LPF_FACTOR = 0.4    # Low pass filter constant magnetometer
+        self.__initialize()
 
     def update(self):
         MAGx, MAGy, MAGz = self.readRaw()
 
         #Apply compass calibration
-        MAGx -= (magXmin + magXmax) /2
-        MAGy -= (magYmin + magYmax) /2
-        MAGz -= (magZmin + magZmax) /2
+        MAGx -= (self.magXmin + self.magXmax) /2
+        MAGy -= (self.magYmin + self.magYmax) /2
+        MAGz -= (self.magZmin + self.magZmax) /2
 
-        MAGx_f, MAGy_f, MAGz_f = self.__filter(ACCx, ACCy, ACCz)
+        MAGx_f, MAGy_f, MAGz_f = self.__filter(MAGx, MAGy, MAGz)
 
         return MAGx_f, MAGy_f, MAGz_f
 
 
     def __filter(self, MAGx, MAGy, MAGz):
         ### IIR LPF
-        MAGx =  MAGx  * self.MAG_LPF_FACTOR + self.logX[0]*(1 - self.MAG_LPF_FACTOR);
-        MAGy =  MAGy  * self.MAG_LPF_FACTOR + self.logY[0]*(1 - self.MAG_LPF_FACTOR);
-        MAGz =  MAGz  * self.MAG_LPF_FACTOR + self.logZ[0]*(1 - self.MAG_LPF_FACTOR);
+        MAGx =  MAGx  * MAG_LPF_FACTOR + self.logX[0]*(1 - MAG_LPF_FACTOR);
+        MAGy =  MAGy  * MAG_LPF_FACTOR + self.logY[0]*(1 - MAG_LPF_FACTOR);
+        MAGz =  MAGz  * MAG_LPF_FACTOR + self.logZ[0]*(1 - MAG_LPF_FACTOR);
 
         ### MEDIAN FILTER
         # remove last elements
@@ -66,19 +67,19 @@ class Magnetometer(sensor.Sensor):
 
         return x, y, z
 
-def __initialize(self):
-    ### WHO AM I CHECK
-    try:
-        LIS3MDL_WHO_AM_I_response = (bus.read_byte_data(LIS3MDL_ADDRESS, LIS3MDL_WHO_AM_I))
-    except IOError as f:
-        print('ERROR: No LIS3MDL was found...')
-        sys.exit()
-    else:
-        if (LIS3MDL_WHO_AM_I_response == 0x3D):
-            print("Found LIS3MDL for magnetometer...")
+    def __initialize(self):
+        ### WHO AM I CHECK
+        try:
+            LIS3MDL_WHO_AM_I_response = (self.bus.read_byte_data(LIS3MDL_ADDRESS, LIS3MDL_WHO_AM_I))
+        except IOError as f:
+            print('ERROR: No LIS3MDL was found...')
+            sys.exit()
+        else:
+            if (LIS3MDL_WHO_AM_I_response == 0x3D):
+                print("Found LIS3MDL for magnetometer...")
 
-    ### SETUP
-    #initialise the magnetometer
-    writeByte(LIS3MDL_ADDRESS,LIS3MDL_CTRL_REG1, 0b11011100)         # Temp sesnor enabled, High performance, ODR 80 Hz, FAST ODR disabled and Selft test disabled.
-    writeByte(LIS3MDL_ADDRESS,LIS3MDL_CTRL_REG2, 0b00100000)         # +/- 8 gauss
-    writeByte(LIS3MDL_ADDRESS,LIS3MDL_CTRL_REG3, 0b00000000)         # Continuous-conversion mode
+        ### SETUP
+        #initialise the magnetometer
+        self.writeByte(LIS3MDL_CTRL_REG1, 0b11011100)         # Temp sesnor enabled, High performance, ODR 80 Hz, FAST ODR disabled and Selft test disabled.
+        self.writeByte(LIS3MDL_CTRL_REG2, 0b00100000)         # +/- 8 gauss
+        self.writeByte(LIS3MDL_CTRL_REG3, 0b00000000)         # Continuous-conversion mode

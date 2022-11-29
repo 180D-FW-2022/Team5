@@ -3,6 +3,7 @@ import gyro
 import magnetometer
 import datetime
 import math
+import time
 
 from constants import *
 
@@ -26,6 +27,10 @@ class IMU:
         self.YP_10 = 0.0
         self.YP_11 = 0.0
 
+        self.gyroXangle = 0.0
+        self.gyroYangle = 0.0
+        self.gyroZangle = 0.0
+
     def linearAcc(self):
         return self.acc.update()
 
@@ -35,11 +40,11 @@ class IMU:
         rate_gyr_x, rate_gyr_y, rate_gyr_z = self.gyro.update()
 
         #Calculate the angles from the gyro.
-        gyroXangle+=rate_gyr_x*LP
-        gyroYangle+=rate_gyr_y*LP
-        gyroZangle+=rate_gyr_z*LP
+        self.gyroXangle+=rate_gyr_x*LP
+        self.gyroYangle+=rate_gyr_y*LP
+        self.gyroZangle+=rate_gyr_z*LP
 
-        return gyroXangle, gyroYangle, gyroZangle
+        return self.gyroXangle, self.gyroYangle, self.gyroZangle
 
     def tiltCompensatedHeading(self):
         ACCx, ACCy, ACCz = self.acc.update()
@@ -65,7 +70,7 @@ class IMU:
         magXcomp = MAGx*math.cos(pitch)+MAGz*math.sin(pitch)
 
         #Y compensation
-        magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch
+        magYcomp = MAGx*math.sin(roll)*math.sin(pitch)+MAGy*math.cos(roll)-MAGz*math.sin(roll)*math.cos(pitch)
 
         #Calculate tilt compensated heading
         tiltCompensatedHeading = 180 * math.atan2(magYcomp,magXcomp)/M_PI
@@ -96,8 +101,8 @@ class IMU:
             AccYangle += 90.0
 
         #Kalman filter used to combine the accelerometer and gyro values.
-        kalmanY, self.YP_00, self.YP_01, self.YP_10, self.YP_11, self.y_bias = __kalman(AccYangle, rate_gyr_y, LP, self.YP_00, self.YP_01, self.YP_10, self.YP_11, self.y_bias)
-        kalmanX, self.XP_00, self.XP_01, self.XP_10, self.XP_11, self.x_bias = __kalman(AccXangle, rate_gyr_x, LP, self.XP_00, self.XP_01, self.XP_10, self.XP_11, self.x_bias)
+        kalmanY, self.YP_00, self.YP_01, self.YP_10, self.YP_11, self.y_bias = self.__kalman(AccYangle, rate_gyr_y, LP, self.YP_00, self.YP_01, self.YP_10, self.YP_11, self.y_bias)
+        kalmanX, self.XP_00, self.XP_01, self.XP_10, self.XP_11, self.x_bias = self.__kalman(AccXangle, rate_gyr_x, LP, self.XP_00, self.XP_01, self.XP_10, self.XP_11, self.x_bias)
 
         return kalmanX, kalmanY
 
@@ -109,14 +114,14 @@ class IMU:
         x=0.0
         S=0.0
 
-        KFangley = KFangley + DT * (gyroRate - bias)
+        self.KFangley = self.KFangley + DT * (gyroRate - bias)
 
         P_00 = P_00 + ( - DT * (P_10 + P_01) + Q_angle * DT )
         P_01 = P_01 + ( - DT * P_11 )
         P_10 = P_10 + ( - DT * P_11 )
         P_11 = P_11 + ( + Q_gyro * DT )
 
-        x = accAngle - KFangle
+        x = accAngle - self.KFangle
         S = P_00 + R_angle
         K_0 = P_00 / S
         K_1 = P_10 / S
@@ -130,3 +135,18 @@ class IMU:
         P_11 = P_11 - ( K_1 * P_01 )
 
         return KFangle, P_00, P_01, P_10, P_11, bias
+
+
+def main():
+    imu = IMU()
+    while True:
+        #print(imu.linearAcc())
+        #print(imu.gyroIntegration())
+        #print(imu.tiltCompensatedHeading())
+        print(imu.kalmanStateEstimate())
+
+        time.sleep(0.1)
+
+
+if __name__ == "__main__":
+    main()

@@ -8,3 +8,6 @@ M_PI = 3.14159265358979323846
 
 ACC_MEDIANTABLESIZE = 15         # Median filter table size for accelerometer. Higher = smoother but a longer delay
 MAG_MEDIANTABLESIZE = 9         # Median filter table size for magnetometer. Higher = smoother but a longer delay
+
+MAG_LPF_FACTOR = 0.4    # Low pass filter constant magnetometer
+ACC_LPF_FACTOR = 0.4    # Low pass filter constant for accelerometer

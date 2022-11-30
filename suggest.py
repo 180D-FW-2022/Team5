@@ -22,6 +22,21 @@ def driver_distracted():
     engine.say(text)
     engine.runAndWait()
 
-warn_speed(30, 40)
-blew_stop()
-driver_distracted()
+def disable_suggestions():
+    text = "Suggestions disabled"
+    engine.say(text)
+    engine.runAndWait()
+
+def enable_suggestions():
+    text = "Suggestions enabled"
+    engine.say(text)
+    engine.runAndWait()
+
+def power_off():
+    text = "Ending session"
+    engine.say(text)
+    engine.runAndWait()
+
+def say_phrase(text):
+    engine.say(text)
+    engine.runAndWait()

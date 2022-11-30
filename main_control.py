@@ -1,11 +1,11 @@
 import json
 import sys
-from suggestdummy import *
+from suggest import *
 from dummy import *
-#from firebase_rt import *
+from firebase_rt import *
 from ed_speech import SpeechDetect
-#import firebase_admin
-#from firebase_admin import credentials, storage, db
+import firebase_admin
+from firebase_admin import credentials, storage, db
 import threading
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
@@ -21,10 +21,10 @@ class Main_Control:
         self.should_suggest = settings["enable_suggest"]
         self.user = settings["user_id"]
 
-        #self.database = Database(self.user)
+        self.database = Database(self.user)
         self.speech = SpeechDetect(self.should_suggest)
 
-        #self.ref = self.database.get_ref()
+        self.ref = self.database.get_ref()
         self.ser = uart_utils.initialize_serial()
 
         # message sent by Device 1 (TX/RX pins 9/10) and Device 2 (TX/RX pins 7/8)
@@ -44,6 +44,7 @@ class Main_Control:
         if (len(received_data) != 0):       
             raw_data_str = uart_utils.byte2str(received_data)
             data_src, data_str = uart_receiver.extract_msg(raw_data_str)
+            print("received: " + data_str + " -from device " + str(data_src))
 
             # Inward Facing Camera connected to Teensy UART Pins 9/10 (Serial2)
             if (data_src == 1):
@@ -74,7 +75,8 @@ class Main_Control:
             speed = curr_speed()
             acc = curr_acc()
             speedWarn = speed > 65
-            #self.database.uploadData(speed, acc, speedWarn)
+            print("uploaded")
+            self.database.uploadData(speed, acc, speedWarn)
             if self.should_suggest and speedWarn:
                 warn_speed(65, round(speed,2))
 

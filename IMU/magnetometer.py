@@ -1,4 +1,4 @@
-from LIS3MDL import *
+from IMU.LIS3MDL import *
 from constants import *
 
 import sensor

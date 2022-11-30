@@ -1,4 +1,4 @@
-from LSM6DSL import *
+from IMU.LSM6DSL import *
 from constants import *
 
 import sensor

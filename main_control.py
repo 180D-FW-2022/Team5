@@ -9,6 +9,7 @@ from firebase_admin import credentials, storage, db
 import threading
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
+import IMU.IMU as IMU
 
 class Main_Control:
     def __init__(self):
@@ -26,6 +27,8 @@ class Main_Control:
 
         self.ref = self.database.get_ref()
         self.ser = uart_utils.initialize_serial()
+
+        #self.imu = 
 
         # message sent by Device 1 (TX/RX pins 9/10) and Device 2 (TX/RX pins 7/8)
         self.d1msg = ""

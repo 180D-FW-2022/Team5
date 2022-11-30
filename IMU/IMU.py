@@ -1,6 +1,6 @@
-import accelerometer
-import gyro
-import magnetometer
+import IMU.accelerometer as accelerometer
+import IMU.gyro as gyro
+import IMU.magnetometer as magnetometer
 import datetime
 import math
 import time

@@ -4,9 +4,9 @@ def curr_speed():
     # will replace with actual speed from GPS
     return random.random()*20
 
-def curr_acc():
+def curr_acc(imu):
     # will replace with linear acc from IMU
-    return random.random()*5
+    return imu.linearAcc()
 
 def stop_sign():
     # checks stop sign size and location to determine if driver should slpw

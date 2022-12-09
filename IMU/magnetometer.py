@@ -1,7 +1,7 @@
 from IMU.LIS3MDL import *
-from constants import *
+from IMU.constants import *
 
-import sensor
+import IMU.sensor as sensor
 import statistics
 import sys
 

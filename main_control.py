@@ -28,7 +28,7 @@ class Main_Control:
         self.ref = self.database.get_ref()
         self.ser = uart_utils.initialize_serial()
 
-        #self.imu = 
+        self.imu = IMU.IMU()
 
         # message sent by Device 1 (TX/RX pins 9/10) and Device 2 (TX/RX pins 7/8)
         self.d1msg = ""
@@ -76,13 +76,15 @@ class Main_Control:
             
             # get current speed
             speed = curr_speed()
-            acc = curr_acc()
+            acc = curr_acc(self.imu)
             speedWarn = speed > 65
             print("uploaded")
             self.database.uploadData(speed, acc, speedWarn)
             if self.should_suggest and speedWarn:
                 warn_speed(65, round(speed,2))
-
+            if self.speech.shouldReport():
+                say_phrase("Your current acceleration is " + str(round(acc[0], 2)))
+                self.speech.reportDone()
             # check stop sign
             if self.should_suggest and stop_sign():
                 approach_stop()

@@ -4,7 +4,7 @@ class SpeechDetect():
     def __init__(self, suggest):
         self.shouldSuggest = suggest
         self.powerOff = False
-
+        self.report = False
     def detect_speech(self):
         speech = LiveSpeech(lm=False, kws="./kws.txt")
         expect_command = False
@@ -20,16 +20,17 @@ class SpeechDetect():
                     print("turning off")
                     expect_command = False
                     self.powerOff = True
-                if segments[0][0] == 'stop suggestions ':
+                if segments[0][0] == 'stop ':
                     print("Disabling suggestions")
                     self.shouldSuggest = False
                     expect_command = False
-                if segments[0][0] == 'enable suggestions ':
+                if segments[0][0] == 'enable ':
                     print("Enabling suggestions")
                     self.shouldSuggest = True
                     expect_command = False
                 if segments[0][0] == 'report ':
                     print("Providing Summary")
+                    self.report = True
                     expect_command = False
             print(expect_command)
 
@@ -38,3 +39,9 @@ class SpeechDetect():
 
     def shouldPowerOff(self):
         return self.powerOff
+
+    def shouldReport(self):
+        return self.report
+
+    def reportDone(self):
+        self.report = False

@@ -5,7 +5,7 @@ import datetime
 import math
 import time
 
-from constants import *
+from IMU.constants import *
 
 
 class IMU:

@@ -1,1 +1,1 @@
-{"user_id": "TestUser", "enable_suggest": true}
+{"user_id": "TestUser3", "enable_suggest": false}

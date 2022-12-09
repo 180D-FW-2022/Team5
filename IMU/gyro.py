@@ -1,6 +1,6 @@
-from LSM6DSL import *
+from IMU.LSM6DSL import *
 
-import sensor
+import IMU.sensor as sensor
 import sys
 
 class Gyroscope(sensor.Sensor):

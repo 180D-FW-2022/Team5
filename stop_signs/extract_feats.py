@@ -80,7 +80,7 @@ class my_detector():
 
         # Process predictions
         s = ""
-        # returnable = ""
+        returnable = ""
         for i, det in enumerate(pred):  # per image
             seen += 1
             

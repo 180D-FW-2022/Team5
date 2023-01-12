@@ -18,6 +18,25 @@ from utils.augmentations import (Albumentations, augment_hsv, classify_albumenta
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
+
+import serial
+
+# Initialize Serial comms
+def initialize_serial():
+    ser = serial.Serial ("/dev/ttyS0", 9600, timeout=1)    #Open port with baud rate
+    print("===== Serial Receiver Initialized =====")
+    print(ser)
+    return ser
+
+def byte2str(bytestr):
+    return bytestr.decode("utf-8")
+
+def str2byte(str):
+    return str.encode('utf-8')
+
+def write_str(ser, data_str):
+    ser.write(str2byte(data_str + '\0'))
+
 class my_detector():
 
     def __init__(self, imgsz) -> None:
@@ -87,7 +106,11 @@ class my_detector():
                     #s += f"{n} {self.names[int(c)]}{'s' * (n > 1)}, conf: {det[:, 4]} "  # add to string
                 
                 for i in range(det.shape[0]):
-                    returnable += "{} {} {} {}".format(det[i, 0],det[i, 1],abs(det[i, 1] - det[i, 3]),det[i, 4])
+                    # x, y, height, confidence
+                    # OR
+                    # y, x, width, confidence
+                    returnable += "{},{},{},{}".format(round(det[i, 0]), round(det[i, 1]),round(abs(det[i, 1] - det[i, 3])),round(det[i, 4]), 2)
+                    return returnable
 
         
         # Print time (inference-only)
@@ -105,9 +128,11 @@ print("loaded")
 
 
 cap = cv2.VideoCapture(0)
+ser = initialize_serial()
 while True:
     _, frame = cap.read()
     r = det.my_detect(frame, 0.3)
+    write_str(ser, r)
     print(r)
     # cv2.imshow('frame',frame)
     # k = cv2.waitKey(5) & 0xFF

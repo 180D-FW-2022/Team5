@@ -109,7 +109,8 @@ class my_detector():
                     # x, y, height, confidence
                     # OR
                     # y, x, width, confidence
-                    returnable += "{},{},{},{}".format(round(det[i, 0]), round(det[i, 1]),round(abs(det[i, 1] - det[i, 3])),round(det[i, 4]), 2)
+                    
+                    returnable += "{},{},{},{}".format(round(float(det[i, 0])), round(float(det[i, 1])),round(abs(float(det[i, 1] - det[i, 3]))),round(float(det[i, 4])), 2)
                     return returnable
 
         

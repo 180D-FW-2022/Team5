@@ -133,7 +133,8 @@ ser = initialize_serial()
 while True:
     _, frame = cap.read()
     r = det.my_detect(frame, 0.3)
-    write_str(ser, r)
+    if r:
+        write_str(ser, str2byte(r))
     print(r)
     # cv2.imshow('frame',frame)
     # k = cv2.waitKey(5) & 0xFF

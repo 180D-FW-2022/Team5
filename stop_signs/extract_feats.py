@@ -35,7 +35,7 @@ def str2byte(str):
     return str.encode('utf-8')
 
 def write_str(ser, data_str):
-    ser.write(str2byte(data_str + '\0'))
+    ser.write(str2byte(data_str))
 
 class my_detector():
 
@@ -134,8 +134,8 @@ while True:
     _, frame = cap.read()
     r = det.my_detect(frame, 0.3)
     if r:
-        write_str(ser, str2byte(r))
-    print(r)
+        write_str(ser, r)
+        print(r)
     # cv2.imshow('frame',frame)
     # k = cv2.waitKey(5) & 0xFF
     # if k == 27:

@@ -3,7 +3,7 @@ import sys
 from suggest import *
 from dummy import *
 from firebase_rt import *
-from ed_speech import SpeechDetect
+from ed_speech_2 import SpeechDetect
 import firebase_admin
 from firebase_admin import credentials, storage, db
 import threading

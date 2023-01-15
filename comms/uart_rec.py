@@ -43,7 +43,7 @@ def main():
     while True:
         received_data = read_all(ser)              #read serial port
         if (len(received_data) != 0):
-            received_data_str = received_data.decode("utf-8")
+            received_data_str = decode_bytestring(received_data)
             data_src, data_str = extract_msg(received_data_str)
             print("From Device " + str(data_src))
             print("Received \"" + str(data_str) + "\"")

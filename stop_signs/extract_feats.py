@@ -28,15 +28,6 @@ def initialize_serial():
     print(ser)
     return ser
 
-def byte2str(bytestr):
-    return bytestr.decode("utf-8")
-
-def str2byte(str):
-    return str.encode('utf-8')
-
-def write_str(ser, data_str):
-    ser.write(str2byte(data_str + '\0'))
-
 class my_detector():
 
     def __init__(self, imgsz) -> None:
@@ -110,7 +101,11 @@ class my_detector():
                     # OR
                     # y, x, width, confidence
                     
-                    returnable = "{} {} {} {}".format(round(float(det[i, 0])), round(float(det[i, 1])),round(abs(float(det[i, 1] - det[i, 3]))),round(float(det[i, 4]),2))
+                    x = round(float(det[i, 0]))
+                    y = round(float(det[i, 1]))
+                    h = round(abs(float(det[i, 1] - det[i, 3])))
+                    conf = round(float(det[i, 4]),2)
+                    returnable = f'{x},{y},{h},{conf}'
                     return returnable
 
         
@@ -121,7 +116,12 @@ class my_detector():
         # Print results
         t = tuple(x.t / seen * 1E3 for x in dt)  # speeds per image
         # print(f'Speed: %.1fms pre-process, %.1fms inference, %.1fms NMS per image at shape {(1, 3, *self.imgsz)}' % t)
-        
+
+    def txToController(self, payload):
+        # WARNING: imports are weird so hard-coding this serial transmit
+        b = payload.encode('utf-8')
+        ser.write(b)
+        #uart_send.write_str(self.ser, payload) 
 
 # det = my_detector([416,416])
 det = my_detector([224,224])
@@ -134,7 +134,8 @@ while True:
     _, frame = cap.read()
     r = det.my_detect(frame, 0.3)
     if r:
-        write_str(ser, r)
+        det.txToController(r)
+        
         print(r)
     # cv2.imshow('frame',frame)
     # k = cv2.waitKey(5) & 0xFF

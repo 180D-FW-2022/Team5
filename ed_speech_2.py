@@ -7,7 +7,6 @@ class SpeechDetect():
         self.powerOff = False
         self.report = False
         r = sr.Recognizer()
-        print("Starting Speech Detection")
 
     def detect_speech(self):
         expect_command = False
@@ -28,9 +27,12 @@ class SpeechDetect():
                 print("oops")
                 continue
 
+            print(text)
+
             if 'hey ed' in text:
                 expect_command = True
-            print(text)
+                print(expect_command)
+                continue
 
             if expect_command:
                 if 'power off' in text:

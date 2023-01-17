@@ -119,7 +119,7 @@ class my_detector():
 
     def txToController(self, payload):
         # WARNING: imports are weird so hard-coding this serial transmit
-        b = payload.encode('utf-8')
+        b = (payload + "\0").encode('utf-8')
         ser.write(b)
         #uart_send.write_str(self.ser, payload) 
 

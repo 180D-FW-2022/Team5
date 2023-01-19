@@ -67,6 +67,7 @@ class my_detector():
         with dt[2]:
             pred = non_max_suppression(pred, conf_thres, 0.45, None, False, max_det=1000)
 
+        pred = pred[0]
         if pred:
             modded_pred = np.zeros((len(pred), 3))
             for i, det in enumerate(pred):

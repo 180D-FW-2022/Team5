@@ -67,14 +67,14 @@ class my_detector():
         with dt[2]:
             pred = non_max_suppression(pred, conf_thres, 0.45, None, False, max_det=1000)
 
-
-        modded_pred = np.zeros((len(pred), 3))
-        for i, det in enumerate(pred):
-            modded_pred[i,0] = det[0]
-            modded_pred[i,1] = det[1]
-            modded_pred[i,2] = det[1] - det[3]
-        
-        print(modded_pred[:,2])
+        if pred:
+            modded_pred = np.zeros((len(pred), 3))
+            for i, det in enumerate(pred):
+                modded_pred[i,0] = det[0]
+                modded_pred[i,1] = det[1]
+                modded_pred[i,2] = det[1] - det[3]
+            
+            print(modded_pred[:,2])
 
 
     def txToController(self, payload):

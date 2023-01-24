@@ -7,22 +7,25 @@ from dotenv import dotenv_values
 import json
 
 class Database:
-    def __init__(self, user_id):
+    def __init__(self, device_id):
         # get config values and initialize firebase
         config = dotenv_values(".env")
         firebase_config = json.loads(config["FIREBASE"])
         cred = credentials.Certificate(firebase_config)
         firebase = firebase_admin.initialize_app(cred, {'databaseURL':"https://driver-s-edd-default-rtdb.firebaseio.com/"})
 
-        self.ref = db.reference(str(user_id) + "/Time/")
+        curr_time = datetime.today()
+        session_id = str(curr_time).replace(" ", "_").replace(".", "_")
 
-        print(str(user_id) + "/Time/")
+        self.ref = db.reference("devices/" + str(device_id) + "/sessions/" + str(session_id) + "/incidents")
+
+        print("devices/" + str(device_id) + "/sessions/" + str(session_id))
     
     def get_ref(self):
         return self.ref
 
 
-    def uploadData(self, speed, acc, speedWarn):
+    def uploadData(self, speed, acc, warningType):
         curr_time = datetime.today()
         key = str(curr_time).replace(" ", "_").replace(".", "_")
 
@@ -30,8 +33,9 @@ class Database:
             "date_time": str(curr_time),
             "speed": speed,
             "acceleration": acc,
-            "speed_warning": speedWarn
+            "warning_type": warningType
         }})
+        print("uploaded")
 
 # while (True):
 #     curr_time = datetime.today()

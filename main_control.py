@@ -20,9 +20,9 @@ class Main_Control:
         settings = json.loads(data)
 
         self.should_suggest = settings["enable_suggest"]
-        self.user = settings["user_id"]
+        self.device = settings["device_id"]
 
-        self.database = Database(self.user)
+        self.database = Database(self.device)
         self.speech = SpeechDetect(self.should_suggest)
 
         self.ref = self.database.get_ref()
@@ -36,7 +36,7 @@ class Main_Control:
 
     def change_config(self):
         f = open('config.txt', "w")
-        dictionary = {"user_id": self.user, "enable_suggest": self.should_suggest}
+        dictionary = {"device_id": self.device, "enable_suggest": self.should_suggest}
         f.write(json.dumps(dictionary))
         f.close()
 
@@ -78,10 +78,11 @@ class Main_Control:
             speed = curr_speed()
             acc = curr_acc(self.imu)
             speedWarn = speed > 65
-            print("uploaded")
-            self.database.uploadData(speed, acc, speedWarn)
-            if self.should_suggest and speedWarn:
-                warn_speed(65, round(speed,2))
+            
+            if speedWarn:
+                self.database.uploadData(speed, acc, "speed")
+                if self.should_suggest:
+                    warn_speed(65, round(speed,2))
             if self.speech.shouldReport():
                 say_phrase("Your current acceleration is " + str(round(acc[0], 2)))
                 self.speech.reportDone()
@@ -90,12 +91,16 @@ class Main_Control:
                 approach_stop()
 
             # check gaze
-            #if self.should_suggest and distracted(self.d2msg):
-            #    driver_distracted()
+            # if distracted(self.d2msg):
+            #     self.database.uploadData(speed, acc, "distracted")
+            #     if self.should_suggest:
+            #         driver_distracted()
 
             # check stop blown
-            if self.should_suggest and stop_blown():
-                blew_stop()
+            if stop_blown() or True:
+                self.database.uploadData(speed, acc, "stopBlown")
+                if self.should_suggest:
+                    blew_stop()
 
             if self.speech.shouldPowerOff():
                 power_off()

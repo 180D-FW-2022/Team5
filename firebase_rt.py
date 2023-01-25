@@ -29,13 +29,16 @@ class Database:
         curr_time = datetime.today()
         key = str(curr_time).replace(" ", "_").replace(".", "_")
 
-        self.ref.update({key: {
+        try:
+            self.ref.update({key: {
             "date_time": str(curr_time),
             "speed": speed,
             "acceleration": acc,
             "warning_type": warningType
         }})
-        print("uploaded")
+            print("uploaded")
+        except:
+            print("could not upload")
 
 # while (True):
 #     curr_time = datetime.today()

@@ -15,11 +15,11 @@ class Database:
         firebase = firebase_admin.initialize_app(cred, {'databaseURL':"https://driver-s-edd-default-rtdb.firebaseio.com/"})
 
         curr_time = datetime.today()
-        session_id = str(curr_time).replace(" ", "_").replace(".", "_")
+        self.session_id = str(curr_time).replace(" ", "_").replace(".", "_")
 
-        self.ref = db.reference("devices/" + str(device_id) + "/sessions/" + str(session_id) + "/incidents")
+        self.ref = db.reference("devices/" + str(device_id) + "/sessions/" + str(self.session_id) + "/incidents")
 
-        print("devices/" + str(device_id) + "/sessions/" + str(session_id))
+        print("devices/" + str(device_id) + "/sessions/" + str(self.session_id))
     
     def get_ref(self):
         return self.ref
@@ -28,17 +28,24 @@ class Database:
     def uploadData(self, speed, acc, warningType):
         curr_time = datetime.today()
         key = str(curr_time).replace(" ", "_").replace(".", "_")
-
-        try:
-            self.ref.update({key: {
+        dictionary = {key: {
             "date_time": str(curr_time),
             "speed": speed,
             "acceleration": acc,
             "warning_type": warningType
-        }})
+        }}
+
+        try:
+            self.ref.update(dictionary)
             print("uploaded")
         except:
             print("could not upload")
+            self.save_data(dictionary)
+
+    def save_data(self, dictionary):
+        f = open("saved_data/" + self.session_id + ".txt", "a+")
+        f.write(json.dumps(dictionary)+ "\n")
+        f.close()
 
 # while (True):
 #     curr_time = datetime.today()

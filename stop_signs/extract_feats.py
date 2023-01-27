@@ -135,7 +135,7 @@ camera = None
 cap = None
 rawCapture = None
 if use_picam:
-    camera = PiCamera2()
+    camera = Picamera2()
     camera.start()
 else:
     cap = cv2.VideoCapture(0)

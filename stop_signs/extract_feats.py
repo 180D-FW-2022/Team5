@@ -18,8 +18,7 @@ from utils.augmentations import (Albumentations, augment_hsv, classify_albumenta
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+from picamera2 import PiCamera2
 
 import serial
 
@@ -136,16 +135,17 @@ camera = None
 cap = None
 rawCapture = None
 if use_picam:
-    camera = PiCamera()
-    raw_Capture = PiRGBArray(cam)
+    camera = PiCamera2()
+    camera.start()
 else:
     cap = cv2.VideoCapture(0)
+    if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to webcam
+        cap = cv2.VideoCapture(1)
 ser = initialize_serial()
 while True:
     frame = None
     if use_picam:
-        camera.capture(rawCapture, format="bgr")
-        frame = rawCapture.array()
+        frame = camera.capture_array()[:,:,:3]
     else:
         _, frame = cap.read()
     r = det.my_detect(frame, 0.3)

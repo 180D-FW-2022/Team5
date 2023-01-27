@@ -18,7 +18,7 @@ from utils.augmentations import (Albumentations, augment_hsv, classify_albumenta
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
-from picamera2 import PiCamera2
+from picamera2 import Picamera2
 
 import serial
 

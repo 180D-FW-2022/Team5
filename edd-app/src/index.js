@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import Data from './Data';
 import Login from './Login';
+import Dashboard from "./Dashboard"
 import Register from "./Register";
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
@@ -12,7 +13,7 @@ export default function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />}/>
-        <Route path="/dashboard" element={<Data />}/>
+        <Route path="/dashboard" element={<Dashboard />}/>
         <Route path="/register" element={<Register />}/>
     
       </Routes>

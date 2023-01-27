@@ -37,7 +37,8 @@ export default function Register() {
   const registerDevice = (deviceUID) => {
     const userID = user.uid
     const dbref = ref(db, "users/" + userID + "/devices/");
-    update(dbref, {[deviceUID] : 0})
+    const time = Math.floor(Date.now()/1000)
+    update(dbref, {[deviceUID] : {creation: time}})
       .then(() => {
         // Data saved successfully!
       })

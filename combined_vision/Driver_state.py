@@ -155,11 +155,12 @@ class DriverState:
             fps = 1.0 / float(self.ctime - self.ptime)
             self.ptime = self.ctime
 
-            perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted = self.update(verbose=True)
+            perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted = self.update(verbose=False)
 
             if tx:
                 payload = f'{ear},{perclos_score},{roll},{pitch},{yaw},{tired},{asleep},\
                         {looking_away},{distracted}'
+                print(payload)
                 # self.__txToController(payload)
                 self.queue.put(payload)
 

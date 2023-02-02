@@ -38,9 +38,10 @@ export default function Register() {
     const userID = user.uid
     const dbref = ref(db, "users/" + userID + "/devices/");
     const time = Math.floor(Date.now()/1000)
-    update(dbref, {[deviceUID] : {creation: time}})
+    update(dbref, {[deviceUID] : {creation: time, user: 0}})
       .then(() => {
         // Data saved successfully!
+        alert("You are user 0");
       })
       .catch((error) => {
         // The write failed...
@@ -57,7 +58,7 @@ export default function Register() {
           Register
         </p>
         <form onSubmit={handleSubmit}>
-      <label>Enter your name:
+      <label>Enter your device ID:
       <input 
         type="text" 
         name="deviceUID" 

@@ -7,13 +7,16 @@ import Dashboard from "./Dashboard"
 import Register from "./Register";
 import reportWebVitals from './reportWebVitals';
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import DevicePage from "./DevicePage"
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<Login />}/>
-        <Route path="/dashboard" element={<Dashboard />}/>
+        <Route path="/dashboard" element={<Dashboard />}>
+        </Route>
+        <Route path="device-info" element={<DevicePage />}/>
         <Route path="/register" element={<Register />}/>
     
       </Routes>

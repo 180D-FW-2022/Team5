@@ -15,6 +15,38 @@ function Dashboard() {
   const [user, loading, error] = useAuthState(auth);
   const navigate = useNavigate();
 
+  function DeviceButton({data}){
+
+    const deviceInfo = () => {
+      return navigate("/device-info", {state: {data: data}});
+    };
+  
+    return(
+        <button onClick={deviceInfo}>
+            <p>{data.deviceID}</p>
+        </button>
+    )
+    
+  }
+  
+  function RegisterButton ({data}){
+  
+    const deviceInfo = () => {
+      return navigate("/device-info", {state: {data: data}});
+    };
+  
+    const register = () => {
+      return navigate("/register");
+    };
+  
+    return(
+        <button onClick={register}>
+            <p>Register</p>
+        </button>
+    )
+    
+  }
+
   useEffect(() => {
     if (loading) return;
     if (!user) return navigate("/");
@@ -32,28 +64,13 @@ function Dashboard() {
             data.push(device)
           });
       }
-      
+      console.log(data)
       setDevices(data)
-
-    //   console.log(snapshot.val())
-
-    //   var tempTimes = []
-    //   var tempSpeeds = []
-
-    //   if(snapshot.exists()) {
-    //     Object.values(data).map((entry) => {
-    //       tempTimes = [...tempTimes, entry["date_time"]]
-    //       tempSpeeds = [...tempSpeeds, entry["speed"]]
-    //     })
-
-    //     setTimes(tempTimes)
-    //     setSpeeds(tempSpeeds)
-    //   }
     
     })
   }, [user, loading]);
 
-  // retrieve data whenever there is a change
+  
 
   return (
     <div className="App">
@@ -63,15 +80,16 @@ function Dashboard() {
         </p>
         <div>
       {devices.map(data => (
-        <button key={data.deviceID} onClick={logout}>
-            <p>{data.deviceID}</p>
-        </button>
+
+        <DeviceButton key={data.deviceID} data ={data}> </DeviceButton>
       ))}
+      <RegisterButton> </RegisterButton>
     </div>
-        <button className="dashboard__btn" onClick={logout}>
+        <button className="logout_btn" onClick={logout}>
           Logout
          </button>
       </header>
+          
     </div>
   );
 }

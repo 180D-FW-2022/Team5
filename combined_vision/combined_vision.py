@@ -2,7 +2,7 @@ import sign_tracker
 import Driver_state
 import threading
 import queue
-from picamera2 import Picamera
+from picamera2 import Picamera2
 import cv2
 import serial
 

@@ -32,6 +32,7 @@ def run_stop_signs(queue_object, camera, use_picam=True):
             _, frame = cap.read()
         r = det.my_detect(frame, 0.3)
         if r:
+            # print(r)
             queue_object.put(r)
 
 

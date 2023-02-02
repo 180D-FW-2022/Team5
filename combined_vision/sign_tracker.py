@@ -90,7 +90,7 @@ class my_detector():
         x_count = np.sum(np.where(x_diff > 0, 1, 0))
         size_count = np.sum(np.where(size_diff > 0, 1, 0))
         # print(self.history)
-        # print('xcount {} size_count {}'.format(x_count, size_count))
+        print('xcount {} size_count {}'.format(x_count, size_count))
         if x_count >= self.history.shape[0] - 1 and size_count >= self.history.shape[0] - 1:
             print("APPROACHING STOP SIGN")
             return "STOP"

@@ -18,7 +18,7 @@ from utils.augmentations import (Albumentations, augment_hsv, classify_albumenta
 from utils.plots import Annotator, colors, save_one_box
 from utils.torch_utils import select_device, smart_inference_mode
 
-
+#from picamera2 import Picamera2
 import serial
 
 # Initialize Serial comms
@@ -39,7 +39,7 @@ class my_detector():
         self.model = DetectMultiBackend(weights, device=device, dnn=False, data=data, fp16=False)
         self.stride, self.names, self.pt = self.model.stride, self.model.names, self.model.pt
         self.imgsz = check_img_size(imgsz, s=self.stride)  # check image size
-        self.history = None
+        self.history = np.zeros((5,3))
 
     def my_detect(self, im, conf_thres):
         
@@ -69,14 +69,30 @@ class my_detector():
 
         pred = pred[0]
         modded_pred = np.zeros((pred.shape[0], 3))
+        
         for i, det in enumerate(pred):
             
             modded_pred[i,0] = det[0]
             modded_pred[i,1] = det[1]
-            modded_pred[i,2] = det[1] - det[3]
+            modded_pred[i,2] = det[3] - det[1]
             
-            print(modded_pred[:,2])
+            # print(modded_pred[0,:])
+        self.history[:-1,:] = self.history[1:,:]
+        self.history[-1,:] = modded_pred[0,:] if modded_pred.shape[0] else np.zeros((1,3))
+        
 
+        x_diff = np.zeros((self.history.shape[0] - 1,))
+        size_diff = np.zeros((self.history.shape[0] - 1,))
+        for i in range(self.history.shape[0] - 1):
+            x_diff[i] = self.history[i+1,0] - self.history[i,0]
+            size_diff[i] = self.history[i+1,2] - self.history[i,2]
+        
+        x_count = np.sum(np.where(x_diff > 0, 1, 0))
+        size_count = np.sum(np.where(size_diff > 0, 1, 0))
+        print(self.history)
+        print('xcount {} size_count {}'.format(x_count, size_count))
+        if x_count >= self.history.shape[0] - 1 and size_count >= self.history.shape[0] - 1:
+            print("APPROACHING STOP SIGN")
 
     def txToController(self, payload):
         # WARNING: imports are weird so hard-coding this serial transmit
@@ -88,12 +104,29 @@ class my_detector():
 det = my_detector([224,224])
 print("loaded")
 
-
-cap = cv2.VideoCapture(0)
-ser = initialize_serial()
+run_with_serial = False
+use_picam = False
+camera = None
+cap = None
+rawCapture = None
+if use_picam:
+    camera = Picamera2()
+    camera.start()
+else:
+    cap = cv2.VideoCapture(0)
+    # if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to webcam
+    #     cap = cv2.VideoCapture(1)
+if run_with_serial:
+    ser = initialize_serial()
 while True:
-    _, frame = cap.read()
+    frame = None
+    if use_picam:
+        frame = camera.capture_array()[:,:,:3]
+    else:
+        _, frame = cap.read()
     r = det.my_detect(frame, 0.3)
+    import time
+    time.sleep(0.1)
     if r:
         det.txToController(r)
         

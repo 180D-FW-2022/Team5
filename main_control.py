@@ -1,5 +1,6 @@
 import json
 import sys
+import time
 from suggest import *
 from dummy import *
 from firebase_rt import *
@@ -30,6 +31,10 @@ class Main_Control:
 
         self.imu = IMU.IMU()
 
+        # array of 'state' vectors
+        #   [linear accY, speed (GPS) mph, delta speed (GPS) m/s^2]
+        self.state = [[0, 0, 0]] 
+
         # message sent by Device 1 (TX/RX pins 9/10) and Device 2 (TX/RX pins 7/8)
         self.d1msg = ""
         self.d2msg = ""
@@ -39,6 +44,15 @@ class Main_Control:
         dictionary = {"device_id": self.device, "enable_suggest": self.should_suggest}
         f.write(json.dumps(dictionary))
         f.close()
+
+    def __update_state(self, accY, speed, dt):
+        state_length = 100 # how many previous states we keep track of
+        mph_to_mps = 0.44704
+        delta_speed = (speed - self.state[len(self.state)][1]) * mph_to_mps / dt
+        if len(self.state) < state_length:
+            self.state.append([accY, speed, delta_speed])
+        else:
+            self.state = [[accY, speed, delta_speed]] + self.state[0 : state_length - 1]
 
     def try_uart_read(self):
         # try reading comms from UART
@@ -59,6 +73,7 @@ class Main_Control:
     def run(self):
         t1 = threading.Thread(target=self.speech.detect_speech, daemon=True)
         t1.start()
+        t0 = time.time()
         while(1):
             # check if we should provide audio suggestions
             should = self.speech.suggestSetting()
@@ -78,6 +93,9 @@ class Main_Control:
             speed = curr_speed()
             acc = curr_acc(self.imu)
             speedWarn = speed > 65
+            dt = time.time() - t0
+            t0 = time.time()
+            self.__update_state(acc[1], speed, dt)
             
             if speedWarn:
                 self.database.uploadData(speed, acc, "speed")
@@ -97,7 +115,7 @@ class Main_Control:
             #         driver_distracted()
 
             # check stop blown
-            if stop_blown() or True:
+            if stop_sign() and not is_slowing_down():
                 self.database.uploadData(speed, acc, "stopBlown")
                 if self.should_suggest:
                     blew_stop()

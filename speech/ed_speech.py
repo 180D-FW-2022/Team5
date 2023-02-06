@@ -17,3 +17,6 @@ class SpeechDetect():
             segments = phrase.segments(detailed=True)
             self.__txToController(str(segments[0][0]) +  '\0')
             print(segments[0][0])
+
+s =  SpeechDetect()
+s.detect_speech()

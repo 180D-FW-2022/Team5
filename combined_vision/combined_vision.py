@@ -5,6 +5,7 @@ import queue
 from picamera2 import Picamera2
 import cv2
 import serial
+import time
 
 cap = cv2.VideoCapture(0)
 if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to webcam
@@ -50,6 +51,7 @@ sign_thread.start()
 driver_thread.start()
 
 while True:
+    time.sleep(0.1)
     if not q.empty():
         payload = q.get()
         b = (payload + "\0").encode('utf-8')

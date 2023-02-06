@@ -1,5 +1,4 @@
 from pocketsphinx import LiveSpeech
-
 class SpeechDetect():
     def __init__(self, suggest):
         self.shouldSuggest = suggest

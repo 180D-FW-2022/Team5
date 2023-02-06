@@ -4,8 +4,9 @@ import json
 
 class SpeechDetect():
     def __init__(self):
+        with open('speechmap.json') as json_data:
+            self.speechmap = json.loads(json_data.read())
         self.ser = serial.Serial ("/dev/ttyS0", 9600, timeout=1)
-        self.speechmap = json.load('speechmap.json')
         
     def __txToController(self,msg):
         self.ser.write(msg.encode('utf-8'))

@@ -2,7 +2,7 @@ from comms import uart_proc
 
 
 # Read an incoming message through UART
-def read_all(port, chunk_size=200):
+def read_all(port, chunk_size=400):
     if not port.timeout:
         raise TypeError('Port needs to have a timeout set!')
 

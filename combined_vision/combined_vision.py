@@ -20,7 +20,7 @@ q = queue.Queue()
 
 def run_driver_detect(queue_object, camera, use_picam=False):
     ds = Driver_state.DriverState(queue_object, camera)
-    ds.runContinuously()
+    ds.runContinuously(True)
 
 
 def run_stop_signs(queue_object, camera, use_picam=True):
@@ -53,6 +53,7 @@ driver_thread.start()
 while True:
     time.sleep(0.1)
     if not q.empty():
+        
         payload = q.get()
         b = (payload + "\0").encode('utf-8')
         ser.write(b)

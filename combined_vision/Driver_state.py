@@ -123,6 +123,12 @@ class DriverState:
                 if verbose:
                     self.__prettyPrint(perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted)
 
+                perclos_score = round(perclos_score, 2)
+                ear = round(ear, 2)
+                roll = round(roll, 2)
+                pitch = round(pitch, 2)
+                yaw = round(yaw, 2)
+
                 return perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted
 
         return -1, -1, -1, -1, -1, False, False, False, False
@@ -155,14 +161,17 @@ class DriverState:
             fps = 1.0 / float(self.ctime - self.ptime)
             self.ptime = self.ctime
 
-            perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted = self.update(verbose=False)
+            try:
+                perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted = self.update(verbose=False)
+                if tx and ear != -1:
+                    payload = f'{ear},{perclos_score},{roll},{pitch},{yaw},{tired},{asleep},{looking_away},{distracted}'
+                    # print(payload)
+                    # self.__txToController(payload)
+                    self.queue.put(payload)
+            except:
+                pass
 
-            if tx:
-                payload = f'{ear},{perclos_score},{roll},{pitch},{yaw},{tired},{asleep},\
-                        {looking_away},{distracted}'
-                print(payload)
-                # self.__txToController(payload)
-                self.queue.put(payload)
+            
 
     # Send the data via teensy UART buffer to RX controller Rpi
     def __txToController(self, payload):

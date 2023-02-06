@@ -27,7 +27,7 @@ class Main_Control:
         self.ref = self.database.get_ref()
         self.ser = uart_utils.initialize_serial()
 
-        self.imu = IMU.IMU()
+        #self.imu = IMU.IMU()
 
         # array of 'state' vectors
         #   [linear accY, speed (GPS) mph, delta speed (GPS) m/s^2]

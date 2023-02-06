@@ -149,6 +149,7 @@ class DriverState:
     # and optionally transmittes the results to the controller
     def runContinuously(self, tx=False):
         while True:
+            time.sleep(0.33)
             delta_time = time.perf_counter() - self.prev_time
 
             # looping too fast

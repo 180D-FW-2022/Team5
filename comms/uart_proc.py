@@ -8,7 +8,11 @@ def initialize_serial():
     return ser
 
 def byte2str(bytestr):
-    return bytestr.decode("utf-8")
+    try:
+        return bytestr.decode("utf-8")
+    except:
+        print(bytestr)
+        return ""
 
 def str2byte(str):
     return str.encode('utf-8')

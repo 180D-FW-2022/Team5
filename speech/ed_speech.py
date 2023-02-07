@@ -4,7 +4,7 @@ import json
 
 class SpeechDetect():
     def __init__(self):
-        with open('speechmap.json') as json_data:
+        with open('Team5/speech/speechmap.json') as json_data:
             self.speechmap = json.loads(json_data.read())
         self.ser = serial.Serial ("/dev/ttyS0", 9600, timeout=1)
         

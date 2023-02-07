@@ -12,12 +12,40 @@ class SpeechDetect():
         self.ser.write(msg.encode('utf-8'))
 
     def detect_speech(self):
-        speech = LiveSpeech(lm=False, kws="./kws.txt")
         print("Starting Speech Detection")
-        for phrase in speech:
-            segments = phrase.segments(detailed=True)
-            self.__txToController(str(segments[0][0]) +  '\0')
-            print(segments[0][0])
+        r = sr.Recognizer()
+        text = ""
+        with sr.Microphone() as source:
+            while True:
+                audio = r.listen(source)
+                try:
+                    text = r.recognize_google(audio).lower()
+                except sr.UnknownValueError:
+                    print("Google Speech Recognition could not understand audio")
+                except sr.RequestError as e:
+                    print("Could not request results from Google Speech Recognition service; {0}".format(e))
+                if not text:
+                    print("oops")
+                    continue
+
+                print(text)
+                if 'hey ed' in text:
+                    self.__txToController(self.speechmap['hey ed '] + '\0')
+                    print("wakeword")
+                if 'power off' in text:
+                    self.__txToController(self.speechmap['power off '] + '\0')
+                    print("turning off")
+                if 'stop' in text:
+                    self.__txToController(self.speechmap['stop '] + '\0')
+                    print("Disabling suggestions")
+                if 'enable' in text:
+                    self.__txToController(self.speechmap['enable '] + '\0')
+                    print("Enabling suggestions")
+                if 'report' in text:
+                    self.__txToController(self.speechmap['report '] + '\0')
+                    print("Providing Summary")
+                self.__txToController(str(segments[0][0]) +  '\0')
+                
 
 s =  SpeechDetect()
 s.detect_speech()

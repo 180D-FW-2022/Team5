@@ -18,7 +18,7 @@ class DriverState:
         self.ctime = 0  # current time (used to compute FPS)
         self.ptime = 0  # past time (used to compute FPS)
         self.prev_time = 0  # previous time variable, used to set the FPS limit
-        self.fps_lim = 11  # FPS upper limit value, needed for estimating the time for each frame and increasing performances
+        self.fps_lim = 3  # FPS upper limit value, needed for estimating the time for each frame and increasing performances
         self.time_lim = 1. / self.fps_lim  # time window for each frame taken by the webcam
 
         # instantiation of the dlib face detector object

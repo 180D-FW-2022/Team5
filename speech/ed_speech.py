@@ -1,4 +1,4 @@
-from pocketsphinx import LiveSpeech
+import speech_recognition as sr
 import serial
 import json
 

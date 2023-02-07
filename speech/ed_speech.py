@@ -44,7 +44,6 @@ class SpeechDetect():
                 if 'report' in text:
                     self.__txToController(self.speechmap['report '] + '\0')
                     print("Providing Summary")
-                self.__txToController(str(segments[0][0]) +  '\0')
                 
 
 s =  SpeechDetect()

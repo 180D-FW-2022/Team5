@@ -10,8 +10,9 @@ class SpeechArbitrator:
         self.t_last_interaction = time.time()
 
         #reverse the key value map because 1-to-1
-        kvmap = json.load('speechmap.json')
-        self.speechmap = {v: k for k, v in kvmap.items()}
+        with open('speechmap.json') as json_data:
+            kvmap = json.loads(json_data.read())
+            self.speechmap = {v: k for k, v in kvmap.items()}
 
     def arbitrate_speech(self,phrase_id):
         print(phrase_id)
@@ -40,3 +41,9 @@ class SpeechArbitrator:
                 self.expecting_cmd = False
             self.t_last_interaction = time.time()
 
+s = SpeechArbitrator(True)
+s.arbitrate_speech("1")
+s.arbitrate_speech("4")
+s.arbitrate_speech("3")
+s.arbitrate_speech("1")
+s.arbitrate_speech("3")

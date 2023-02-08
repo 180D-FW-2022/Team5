@@ -34,8 +34,9 @@ class Main_Control:
         self.state = [[0, 0, 0]] 
 
         # message sent by Device 1 (TX/RX pins 9/10) and Device 2 (TX/RX pins 7/8)
-        self.d1msg = ""
-        self.d2msg = ""
+        self.distracted = 0
+        self.tired = 0
+        self.driverStateIdx = 0
 
     def change_config(self):
         f = open('config.txt', "w")
@@ -63,30 +64,48 @@ class Main_Control:
 
             # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
             if (data_src == 1):
-                self.d1msg = data_str;
+                pass
             # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
             elif (data_src == 2):
-                self.arbitrate_driver_state(data_str)
+                self.arbitrate_cv(data_str)
 
-    def arbitrate_driver_state(self, data_str):
+    def arbitrate_cv(self, data_str):
+        if (data_str("STOP")):
+            print("Approachhing a stop sign")
+            suggest.approaching_stop():
         data_list = data_str.split(',')
         if (len(data_list) != 9):
-            return
+            return 
         if (data_list[5] == "True" or data_list[6] == "True"):
-            suggest.driver_tired()
-            print("Driver is Tired")
+            self.tired = self.tired + 1
         if (data_list[8] == "True"):
-            suggest.driver_distracted()
-            print("Driver is distracted")
+            self.distracted = self.distracted + 1
             #tired
             #asleep
             #looking away
             #distracted
+        if (self.distracted >= 3):
+            suggest.driver_distracted()
+            print("Driver is distracted")
+            self.__driver_state_reset()
+
+        if (self.tired >= 3):
+            suggest.driver_tired()
+            print("Driver is tired")
+            self.__driver_state_reset()
+
+        self.driverStateIdx = self.driverStateIdx + 1
+        if (self.driverStateIdx == 5):
+            self.__driver_state_reset()
+            self.driverStateIdx = 0
+
+    def __driver_state_reset(self):
+        self.distracted = 0
+        self.tired = 0
+
     def run(self):
         while(1):
             self.try_uart_read()
-
-
 
 
 controller = Main_Control()

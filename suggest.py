@@ -12,6 +12,11 @@ def warn_speed(limit, speed):
     engine.say(text)
     engine.runAndWait()
 
+def approaching_stop():
+    text = "Stop"
+    engine.say(text)
+    engine.runAndWait()
+
 def blew_stop():
     text = "Start slowing down sooner next time"
     engine.say(text)

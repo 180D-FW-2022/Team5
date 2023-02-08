@@ -9,6 +9,7 @@ from firebase_admin import credentials, storage, db
 import threading
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
+import speech.SpeechArbitrator as SpeechArbitrator
 import IMU.IMU as IMU
 
 class Main_Control:
@@ -25,7 +26,9 @@ class Main_Control:
         self.database = Database(self.device)
 
         self.ref = self.database.get_ref()
+
         self.ser = uart_utils.initialize_serial()
+        self.sa = SpeechArbitrator(True)
 
         self.imu = IMU.IMU()
 
@@ -64,7 +67,7 @@ class Main_Control:
 
             # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
             if (data_src == 1):
-                pass
+                self.sa.arbitrate_speech(data_str)
             # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
             elif (data_src == 2):
                 self.arbitrate_cv(data_str)
@@ -80,18 +83,20 @@ class Main_Control:
             self.tired = self.tired + 1
         if (data_list[8] == "True"):
             self.distracted = self.distracted + 1
-            #tired
-            #asleep
-            #looking away
-            #distracted
+            #item 5, boolean 1: tired
+            #item 6, boolean 2: asleep
+            #item 7, boolean 3: looking away
+            #item 8, boolean 4: distracted
         if (self.distracted >= 3):
-            suggest.driver_distracted()
-            print("Driver is distracted")
+            if (self.sa.shouldSuggest):
+                suggest.driver_distracted()
+                print("Driver is distracted")
             self.__driver_state_reset()
 
         if (self.tired >= 3):
-            suggest.driver_tired()
-            print("Driver is tired")
+            if (self.sa.shouldSuggest):
+                suggest.driver_tired()
+                print("Driver is tired")
             self.__driver_state_reset()
 
         self.driverStateIdx = self.driverStateIdx + 1

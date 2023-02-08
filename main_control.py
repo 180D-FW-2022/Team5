@@ -68,9 +68,9 @@ class Main_Control:
             elif (data_src == 2):
                 self.arbitrate_driver_state(data_str)
 
-    def arbitrate_driver_state(data_str):
+    def arbitrate_driver_state(self, data_str):
         data_list = data_str.split(',')
-        if (len(data_str) != 9):
+        if (len(data_list) != 9):
             return
         if (data_str[5] == "True" or data_str[6] == "True"):
             suggest.driver_tired()

@@ -68,6 +68,10 @@ class Main_Control:
             # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
             if (data_src == 1):
                 self.sa.arbitrate_speech(data_str)
+                if (data_str == "4"):
+                    suggest.enable_suggestions()
+                if (data_str == "3"):
+                    suggest.disable_suggestions()
             # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
             elif (data_src == 2):
                 self.arbitrate_cv(data_str)
@@ -80,29 +84,35 @@ class Main_Control:
         if (len(data_list) != 9):
             return 
         if (data_list[5] == "True" or data_list[6] == "True"):
-            self.tired = self.tired + 1
+            #self.tired = self.tired + 1
+            if (self.sa.shouldSuggest):
+                suggest.driver_distracted()
+                print("Driver is distracted")
         if (data_list[8] == "True"):
-            self.distracted = self.distracted + 1
+            #self.distracted = self.distracted + 1
+            if (self.sa.shouldSuggest):
+                suggest.driver_tired()
+                print("Driver is tired")
             #item 5, boolean 1: tired
             #item 6, boolean 2: asleep
             #item 7, boolean 3: looking away
             #item 8, boolean 4: distracted
-        if (self.distracted >= 3):
-            if (self.sa.shouldSuggest):
-                suggest.driver_distracted()
-                print("Driver is distracted")
-            self.__driver_state_reset()
+        # if (self.distracted >= 3):
+        #     if (self.sa.shouldSuggest):
+        #         suggest.driver_distracted()
+        #         print("Driver is distracted")
+        #     self.__driver_state_reset()
 
-        if (self.tired >= 3):
-            if (self.sa.shouldSuggest):
-                suggest.driver_tired()
-                print("Driver is tired")
-            self.__driver_state_reset()
+        # if (self.tired >= 3):
+        #     if (self.sa.shouldSuggest):
+        #         suggest.driver_tired()
+        #         print("Driver is tired")
+        #     self.__driver_state_reset()
 
-        self.driverStateIdx = self.driverStateIdx + 1
-        if (self.driverStateIdx == 5):
-            self.__driver_state_reset()
-            self.driverStateIdx = 0
+        # self.driverStateIdx = self.driverStateIdx + 1
+        # if (self.driverStateIdx == 5):
+        #     self.__driver_state_reset()
+        #     self.driverStateIdx = 0
 
     def __driver_state_reset(self):
         self.distracted = 0

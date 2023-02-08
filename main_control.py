@@ -28,7 +28,7 @@ class Main_Control:
         self.ref = self.database.get_ref()
 
         self.ser = uart_utils.initialize_serial()
-        self.sa = SpeechArbitrator(True)
+        self.sa = SpeechArbitrator.SpeechArbitrator(True)
 
         self.imu = IMU.IMU()
 

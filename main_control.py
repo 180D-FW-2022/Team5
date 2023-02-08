@@ -72,10 +72,10 @@ class Main_Control:
         data_list = data_str.split(',')
         if (len(data_list) != 9):
             return
-        if (data_str[5] == "True" or data_str[6] == "True"):
+        if (data_list[5] == "True" or data_list[6] == "True"):
             suggest.driver_tired()
             print("Driver is Tired")
-        if (data_str[8] == "True"):
+        if (data_list[8] == "True"):
             suggest.driver_distracted()
             print("Driver is distracted")
             #tired

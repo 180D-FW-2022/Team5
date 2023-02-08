@@ -70,7 +70,7 @@ class Main_Control:
                 self.arbitrate_cv(data_str)
 
     def arbitrate_cv(self, data_str):
-        if (data_str("STOP")):
+        if (data_str == "STOP"):
             print("Approachhing a stop sign")
             suggest.approaching_stop()
         data_list = data_str.split(',')

@@ -1,7 +1,7 @@
 import json
 import sys
 import time
-from suggest import *
+import suggest
 from dummy import *
 from firebase_rt import *
 import firebase_admin
@@ -68,6 +68,16 @@ class Main_Control:
             elif (data_src == 2):
                 self.d2msg = data_str;
 
+    def arbitrate_driver_state(data_str):
+        data_list = data_str.split(',')
+        if (data_str[5] == "True" or data_str[6] == "True"):
+            suggest.driver_tired()
+        if (data_str[8] == "True"):
+            suggest.driver_distracted()
+            #tired
+            #asleep
+            #looking away
+            #distracted
     def run(self):
         while(1):
             self.try_uart_read()

@@ -22,6 +22,11 @@ def driver_distracted():
     engine.say(text)
     engine.runAndWait()
 
+def driver_tired():
+    text = "You are tired!"
+    engine.say(text)
+    engine.runAndWait()
+
 def disable_suggestions():
     text = "Suggestions disabled"
     engine.say(text)

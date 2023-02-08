@@ -66,14 +66,18 @@ class Main_Control:
                 self.d1msg = data_str;
             # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
             elif (data_src == 2):
-                self.d2msg = data_str;
+                self.arbitrate_driver_state(data_str)
 
     def arbitrate_driver_state(data_str):
         data_list = data_str.split(',')
+        if (len(data_str) != 9):
+            return
         if (data_str[5] == "True" or data_str[6] == "True"):
             suggest.driver_tired()
+            print("Driver is Tired")
         if (data_str[8] == "True"):
             suggest.driver_distracted()
+            print("Driver is distracted")
             #tired
             #asleep
             #looking away

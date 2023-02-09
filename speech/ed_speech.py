@@ -22,10 +22,13 @@ class SpeechDetect():
                     text = r.recognize_google(audio).lower()
                 except sr.UnknownValueError:
                     print("Google Speech Recognition could not understand audio")
+                    text = ""
                 except sr.RequestError as e:
                     print("Could not request results from Google Speech Recognition service; {0}".format(e))
+                    text = ""
                 if not text:
                     print("oops")
+                    text = ""
                     continue
 
                 print(text)

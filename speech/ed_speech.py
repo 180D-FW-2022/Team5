@@ -31,18 +31,23 @@ class SpeechDetect():
                 print(text)
                 if 'hey ed' in text:
                     self.__txToController(self.speechmap['hey ed '] + '\0')
+                    text = ""
                     print("wakeword")
                 if 'power off' in text:
                     self.__txToController(self.speechmap['power off '] + '\0')
+                    text = ""
                     print("turning off")
                 if 'stop' in text:
                     self.__txToController(self.speechmap['stop '] + '\0')
+                    text = ""
                     print("Disabling suggestions")
                 if 'enable' in text:
                     self.__txToController(self.speechmap['enable '] + '\0')
+                    text = ""
                     print("Enabling suggestions")
                 if 'report' in text:
                     self.__txToController(self.speechmap['report '] + '\0')
+                    text = ""
                     print("Providing Summary")
                 
 

@@ -166,6 +166,7 @@ class DriverState:
                 perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted = self.update(verbose=False)
                 if tx and ear != -1:
                     payload = f'{ear},{perclos_score},{roll},{pitch},{yaw},{tired},{asleep},{looking_away},{distracted}'
+                    payload = f'{1 if tired else 0}{1 if asleep else 0}{1 if looking_away else 0}{1 if distracted else 0}'
                     # print(payload)
                     # self.__txToController(payload)
                     self.queue.put(payload)

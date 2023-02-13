@@ -80,19 +80,32 @@ class Main_Control:
         if (data_str == "STOP"):
             print("Approachhing a stop sign")
             suggest.approaching_stop()
-        data_list = data_str.split(',')
-        if (len(data_list) != 9):
-            return 
-        if (data_list[5] == "True" or data_list[6] == "True"):
-            #self.tired = self.tired + 1
+        # data_list = data_str.split(',')
+        # if (len(data_list) != 9):
+        #     return 
+        # if (data_list[5] == "True" or data_list[6] == "True"):
+        #     #self.tired = self.tired + 1
+        #     if (self.sa.shouldSuggest):
+        #         suggest.driver_distracted()
+        #         print("Driver is distracted")
+        # if (data_list[8] == "True"):
+        #     #self.distracted = self.distracted + 1
+        #     if (self.sa.shouldSuggest):
+        #         suggest.driver_tired()
+        #         print("Driver is tired")
+
+        if len(data_str) != 4:
+            return
+        if data_str[0] == "1" or data_str[1] == "1":
+            if (self.sa.shouldSuggest):
+                suggest.driver_tired()
+                print("driver tired")
+        if data_str[2] == "1" or data_str[3] == "1":
             if (self.sa.shouldSuggest):
                 suggest.driver_distracted()
                 print("Driver is distracted")
-        if (data_list[8] == "True"):
-            #self.distracted = self.distracted + 1
-            if (self.sa.shouldSuggest):
-                suggest.driver_tired()
-                print("Driver is tired")
+
+        
             #item 5, boolean 1: tired
             #item 6, boolean 2: asleep
             #item 7, boolean 3: looking away

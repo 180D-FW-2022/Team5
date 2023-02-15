@@ -136,6 +136,7 @@ class Main_Control:
             self.try_uart_read()
             print(self.imu.linearAcc())
 
+if __name__ == "__main__":
 
-controller = Main_Control()
-controller.run()
+    controller = Main_Control()
+    controller.run()

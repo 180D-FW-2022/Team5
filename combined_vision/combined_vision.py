@@ -5,16 +5,20 @@ import queue
 import cv2
 import serial
 import time
+import main_control
+import suggest
+from sensor_class import Sensor
+from incident import Incident
+import IMU.IMU as IMU
+import comms.uart_proc as uart_utils
+import comms.uart_rec as uart_receiver
+import speech.SpeechArbitrator as SpeechArbitrator
 
 cap = cv2.VideoCapture(0)
 sign_cam = None
 if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to driver-facing webcam
     sign_cam = cap
     cap = cv2.VideoCapture(1)
-
-
-q = queue.Queue()
-
 
 
 def run_driver_detect(queue_object, camera, use_picam=False):
@@ -36,24 +40,91 @@ def run_stop_signs(queue_object, camera, use_picam=True):
             queue_object.put(r)
 
 
-sign_thread = threading.Thread(target=run_stop_signs, args=(q, sign_cam, False))
-driver_thread = threading.Thread(target=run_driver_detect, args=(q, cap, False))
+class Controller:
 
-def initialize_serial():
-    ser = serial.Serial ("/dev/ttyS0", 9600, timeout=1)    #Open port with baud rate
-    print("===== Serial Receiver Initialized =====")
-    print(ser)
-    return ser
-ser = initialize_serial()
+    def __init__(self) -> None:
+        self.stop_sensor = Sensor(5,0.2)
+        self.sleep_sensor = Sensor(10,0.3)
+        self.speed_sensor = Sensor(10,0.25)
+        self.distract_sensor = Sensor(10,0.3)
+        self.accel_sensor = Sensor(10, 0.2)
 
-sign_thread.start()
-driver_thread.start()
+        speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 70)])
+        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1), (self.speed_sensor.not_find_below, 5)])
+        tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)])
+        distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)])
 
-while True:
-    time.sleep(0.1)
-    if not q.empty():
+        self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident]
+        self.imu = IMU.IMU()
+
+        self.ser = uart_utils.initialize_serial()
+        self.sa = SpeechArbitrator.SpeechArbitrator(True)
+
+    def init_signs(self):
+        self.sign_q = queue.Queue()
         
-        payload = q.get()
-        b = (payload + "\0").encode('utf-8')
-        ser.write(b)
-        print("payload", payload)
+        sign_thread = threading.Thread(target=run_stop_signs, args=(sign_q, sign_cam, False))
+        sign_thread.start()
+
+
+    def init_driver(self):
+        self.driver_q = queue.Queue()
+        driver_thread = threading.Thread(target=run_driver_detect, args=(driver_q, cap, False))
+        driver_thread.start()
+
+    def try_uart_read(self):
+        # try reading comms from UART
+        received_data = uart_receiver.read_all(self.ser)
+        # process received string
+        if (len(received_data) != 0):       
+            raw_data_str = uart_utils.byte2str(received_data)
+            data_src, data_str = uart_receiver.extract_msg(raw_data_str)
+            print("received: " + data_str + " -from device " + str(data_src))
+
+            # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
+            if (data_src == 1):
+                self.sa.arbitrate_speech(data_str)
+                if (data_str == "4"):
+                    suggest.enable_suggestions()
+                if (data_str == "3"):
+                    suggest.disable_suggestions()
+            # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
+
+    def run_iter(self):
+
+        # speech things
+        self.try_uart_read()
+
+        # update sensors
+        if self.sign_q.empty():
+            self.stop_sensor.push(0)
+        else:
+            self.sign_q.get()
+            self.stop_sensor.push(1)
+        
+        if self.driver_q.empty():
+            self.sleep_sensor.push(0)
+            self.distract_sensor.push(0)
+        else:
+            result = self.driver_q.get()
+            if '1' in result[0:2]:
+                self.sleep_sensor.push(1)
+            if '1' in result[2:]:
+                self.distract_sensor.push(1)
+        
+        self.accel_sensor.push(self.imu.linearAcc())
+
+
+        # check for incidents
+        for inc in self.my_incidents:
+            if inc.check_incident():
+                #report
+                print("incident:", inc.name)
+
+if __name__ == '__main__':
+    controller = Controller()
+    controller.init_signs()
+    controller.init_driver()
+    
+    while True:
+        controller.run_iter()

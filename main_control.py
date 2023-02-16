@@ -1,15 +1,19 @@
 import json
 import sys
 import time
+
 from suggest import *
 from dummy import *
 from firebase_rt import *
-import firebase_admin
 from firebase_admin import credentials, storage, db
+
 import threading
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
-import IMU.IMU as IMU
+
+from leds.AnimationPlayer import AnimationPlayer
+from leds.Animation import Animation
+from speech.SpeechArbitrator import SpeechArbitrator
 
 class Main_Control:
     def __init__(self):
@@ -18,14 +22,13 @@ class Main_Control:
             f.close()
 
         settings = json.loads(data)
-
-        self.should_suggest = settings["enable_suggest"]
         self.device = settings["device_id"]
-
         self.database = Database(self.device)
 
         self.ref = self.database.get_ref()
         self.ser = uart_utils.initialize_serial()
+        self.animationPlayer = AnimationPlayer()
+        self.speechArbitrator = SpeechArbitrator(self.animationPlayer)
 
         #self.imu = IMU.IMU()
 
@@ -33,9 +36,8 @@ class Main_Control:
         #   [linear accY, speed (GPS) mph, delta speed (GPS) m/s^2]
         self.state = [[0, 0, 0]] 
 
-        # message sent by Device 1 (TX/RX pins 9/10) and Device 2 (TX/RX pins 7/8)
-        self.d1msg = ""
-        self.d2msg = ""
+        self.should_suggest = settings["enable_suggest"]
+  
 
     def change_config(self):
         f = open('config.txt', "w")
@@ -60,19 +62,23 @@ class Main_Control:
             raw_data_str = uart_utils.byte2str(received_data)
             data_src, data_str = uart_receiver.extract_msg(raw_data_str)
             print("received: " + data_str + " -from device " + str(data_src))
+            return data_str
+        return None
 
-            # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
-            if (data_src == 1):
-                self.d1msg = data_str;
-            # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
-            elif (data_src == 2):
-                self.d2msg = data_str;
 
     def run(self):
+        led_thread = threading.Thread(target=self.animationPlayer.play)
+        led_thread.start()
         while(1):
-            self.try_uart_read()
-
-
+            speech_str = self.try_uart_read()
+            if (type(speech_str) != None):
+                speech_code = self.speechArbitrator.arbitrate_speech(speech_str)
+                if (speech_code == 2):
+                    self.should_suggest = True
+                    self.animationPlayer.queueAnimation(Animation(3))
+                elif (speech_code == 3):
+                    self.should_suggest = False
+                    self.animationPlayer.queueAnimation(Animation(4))
 
 
 controller = Main_Control()

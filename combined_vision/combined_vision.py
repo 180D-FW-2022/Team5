@@ -2,17 +2,16 @@ import sign_tracker
 import Driver_state
 import threading
 import queue
-from picamera2 import Picamera2
 import cv2
 import serial
 import time
 
 cap = cv2.VideoCapture(0)
-if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to webcam
+sign_cam = None
+if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to driver-facing webcam
+    sign_cam = cap
     cap = cv2.VideoCapture(1)
 
-picamera = Picamera2()
-picamera.start()
 
 q = queue.Queue()
 
@@ -30,14 +29,14 @@ def run_stop_signs(queue_object, camera, use_picam=True):
         if use_picam:
             frame = camera.capture_array()[:,:,:3]
         else:
-            _, frame = cap.read()
+            _, frame = camera.read()
         r = det.my_detect(frame, 0.3)
         if r:
             # print(r)
             queue_object.put(r)
 
 
-sign_thread = threading.Thread(target=run_stop_signs, args=(q, picamera, True))
+sign_thread = threading.Thread(target=run_stop_signs, args=(q, sign_cam, False))
 driver_thread = threading.Thread(target=run_driver_detect, args=(q, cap, False))
 
 def initialize_serial():

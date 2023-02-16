@@ -1,60 +1,76 @@
-import json
-import sys
-import time
-import suggest
-from dummy import *
-from firebase_rt import *
-import firebase_admin
-from firebase_admin import credentials, storage, db
+import combined_vision.sign_tracker as sign_tracker
+import combined_vision.Driver_state as Driver_state
 import threading
+import queue
+import cv2
+import serial
+import time
+import main_control
+import suggest
+from sensor_class import Sensor
+from incident import Incident
+import IMU.IMU as IMU
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
 import speech.SpeechArbitrator as SpeechArbitrator
-import IMU.IMU as IMU
 
-class Main_Control:
-    def __init__(self):
-        with open('config.txt') as f:
-            data = f.read()
-            f.close()
+cap = cv2.VideoCapture(0)
+sign_cam = None
+if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to driver-facing webcam
+    sign_cam = cap
+    cap = cv2.VideoCapture(1)
 
-        settings = json.loads(data)
 
-        self.should_suggest = settings["enable_suggest"]
-        self.device = settings["device_id"]
+def run_driver_detect(queue_object, camera, use_picam=False):
+    ds = Driver_state.DriverState(queue_object, camera)
+    ds.runContinuously(True)
 
-        self.database = Database(self.device)
 
-        self.ref = self.database.get_ref()
+def run_stop_signs(queue_object, camera, use_picam=True):
+    det = sign_tracker.my_detector([224,224])
+    while True:
+        frame = None
+        if use_picam:
+            frame = camera.capture_array()[:,:,:3]
+        else:
+            _, frame = camera.read()
+        r = det.my_detect(frame, 0.3)
+        if r:
+            # print(r)
+            queue_object.put(r)
+
+
+class Controller:
+
+    def __init__(self) -> None:
+        self.stop_sensor = Sensor(5,0.2)
+        self.sleep_sensor = Sensor(10,0.3)
+        self.speed_sensor = Sensor(10,0.25)
+        self.distract_sensor = Sensor(10,0.3)
+        self.accel_sensor = Sensor(10, 0.2)
+
+        speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 70)])
+        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1), (self.speed_sensor.not_find_below, 5)])
+        tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)])
+        distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)])
+
+        self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident]
+        self.imu = IMU.IMU()
 
         self.ser = uart_utils.initialize_serial()
         self.sa = SpeechArbitrator.SpeechArbitrator(True)
 
-        self.imu = IMU.IMU()
+    def init_signs(self):
+        self.sign_q = queue.Queue()
+        
+        sign_thread = threading.Thread(target=run_stop_signs, args=(self.sign_q, sign_cam, False))
+        sign_thread.start()
 
-        # array of 'state' vectors
-        #   [linear accY, speed (GPS) mph, delta speed (GPS) m/s^2]
-        self.state = [[0, 0, 0]] 
 
-        # message sent by Device 1 (TX/RX pins 9/10) and Device 2 (TX/RX pins 7/8)
-        self.distracted = 0
-        self.tired = 0
-        self.driverStateIdx = 0
-
-    def change_config(self):
-        f = open('config.txt', "w")
-        dictionary = {"device_id": self.device, "enable_suggest": self.should_suggest}
-        f.write(json.dumps(dictionary))
-        f.close()
-
-    def __update_state(self, accY, speed, dt):
-        state_length = 100 # how many previous states we keep track of
-        mph_to_mps = 0.44704
-        delta_speed = (speed - self.state[len(self.state)][1]) * mph_to_mps / dt
-        if len(self.state) < state_length:
-            self.state.append([accY, speed, delta_speed])
-        else:
-            self.state = [[accY, speed, delta_speed]] + self.state[0 : state_length - 1]
+    def init_driver(self):
+        self.driver_q = queue.Queue()
+        driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, cap, False))
+        driver_thread.start()
 
     def try_uart_read(self):
         # try reading comms from UART
@@ -73,70 +89,37 @@ class Main_Control:
                 if (data_str == "3"):
                     suggest.disable_suggestions()
             # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
-            elif (data_src == 2):
-                self.arbitrate_cv(data_str)
 
-    def arbitrate_cv(self, data_str):
-        if (data_str == "STOP"):
-            print("Approachhing a stop sign")
-            suggest.approaching_stop()
-        # data_list = data_str.split(',')
-        # if (len(data_list) != 9):
-        #     return 
-        # if (data_list[5] == "True" or data_list[6] == "True"):
-        #     #self.tired = self.tired + 1
-        #     if (self.sa.shouldSuggest):
-        #         suggest.driver_distracted()
-        #         print("Driver is distracted")
-        # if (data_list[8] == "True"):
-        #     #self.distracted = self.distracted + 1
-        #     if (self.sa.shouldSuggest):
-        #         suggest.driver_tired()
-        #         print("Driver is tired")
+    def run_iter(self):
 
-        if len(data_str) != 4:
-            return
-        if data_str[0] == "1" or data_str[1] == "1":
-            if (self.sa.shouldSuggest):
-                suggest.driver_tired()
-                print("driver tired")
-        if data_str[2] == "1" or data_str[3] == "1":
-            if (self.sa.shouldSuggest):
-                suggest.driver_distracted()
-                print("Driver is distracted")
+        # speech things
+        self.try_uart_read()
 
+        # update sensors
+        if not self.sign_q.empty():
+            self.sign_q.get()
+            self.stop_sensor.push(1)
         
-            #item 5, boolean 1: tired
-            #item 6, boolean 2: asleep
-            #item 7, boolean 3: looking away
-            #item 8, boolean 4: distracted
-        # if (self.distracted >= 3):
-        #     if (self.sa.shouldSuggest):
-        #         suggest.driver_distracted()
-        #         print("Driver is distracted")
-        #     self.__driver_state_reset()
+        if not self.driver_q.empty():
+            result = self.driver_q.get()
+            if '1' in result[0:2]:
+                self.sleep_sensor.push(1)
+            if '1' in result[2:]:
+                self.distract_sensor.push(1)
+        
+        self.accel_sensor.push(self.imu.linearAcc())
 
-        # if (self.tired >= 3):
-        #     if (self.sa.shouldSuggest):
-        #         suggest.driver_tired()
-        #         print("Driver is tired")
-        #     self.__driver_state_reset()
 
-        # self.driverStateIdx = self.driverStateIdx + 1
-        # if (self.driverStateIdx == 5):
-        #     self.__driver_state_reset()
-        #     self.driverStateIdx = 0
+        # check for incidents
+        for inc in self.my_incidents:
+            if inc.check_incident():
+                #report
+                print("incident:", inc.name)
 
-    def __driver_state_reset(self):
-        self.distracted = 0
-        self.tired = 0
-
-    def run(self):
-        while(1):
-            self.try_uart_read()
-            print(self.imu.linearAcc())
-
-if __name__ == "__main__":
-
-    controller = Main_Control()
-    controller.run()
+if __name__ == '__main__':
+    controller = Controller()
+    controller.init_signs()
+    controller.init_driver()
+    
+    while True:
+        controller.run_iter()

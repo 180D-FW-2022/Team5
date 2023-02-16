@@ -63,13 +63,13 @@ class Controller:
     def init_signs(self):
         self.sign_q = queue.Queue()
         
-        sign_thread = threading.Thread(target=run_stop_signs, args=(sign_q, sign_cam, False))
+        sign_thread = threading.Thread(target=run_stop_signs, args=(self.sign_q, sign_cam, False))
         sign_thread.start()
 
 
     def init_driver(self):
         self.driver_q = queue.Queue()
-        driver_thread = threading.Thread(target=run_driver_detect, args=(driver_q, cap, False))
+        driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, cap, False))
         driver_thread.start()
 
     def try_uart_read(self):
@@ -96,16 +96,11 @@ class Controller:
         self.try_uart_read()
 
         # update sensors
-        if self.sign_q.empty():
-            self.stop_sensor.push(0)
-        else:
+        if not self.sign_q.empty():
             self.sign_q.get()
             self.stop_sensor.push(1)
         
-        if self.driver_q.empty():
-            self.sleep_sensor.push(0)
-            self.distract_sensor.push(0)
-        else:
+        if not self.driver_q.empty():
             result = self.driver_q.get()
             if '1' in result[0:2]:
                 self.sleep_sensor.push(1)

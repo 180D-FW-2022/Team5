@@ -29,7 +29,6 @@ class SpeechArbitrator:
             if self.speechmap[phrase_id] == 'power off ':
                 print("turning off")
                 self.expecting_cmd = False
-                self.powerOff = True
             if self.speechmap[phrase_id] == 'stop ':
                 print("Disabling suggestions")
                 self.shouldSuggest = False
@@ -40,6 +39,5 @@ class SpeechArbitrator:
                 self.expecting_cmd = False
             if self.speechmap[phrase_id] == 'report ':
                 print("Providing Summary")
-                self.report = True
                 self.expecting_cmd = False
             self.t_last_interaction = time.time()

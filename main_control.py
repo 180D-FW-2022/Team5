@@ -13,6 +13,8 @@ import IMU.IMU as IMU
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
 import speech.SpeechArbitrator as SpeechArbitrator
+import numpy as np
+import gps
 
 cap = cv2.VideoCapture(0)
 sign_cam = None
@@ -48,17 +50,20 @@ class Controller:
         self.speed_sensor = Sensor(10,0.25)
         self.distract_sensor = Sensor(10,0.3)
         self.accel_sensor = Sensor(10, 0.2)
+        self.location_sensor = Sensor(600, 15)
 
         speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 70)])
         stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1), (self.speed_sensor.not_find_below, 5)])
         tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)])
         distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)])
+        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.above, 1000)])
 
-        self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident]
+        self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident, accel_incident]
         self.imu = IMU.IMU()
 
         self.ser = uart_utils.initialize_serial()
         self.sa = SpeechArbitrator.SpeechArbitrator(True)
+        self.gps = gps.GPS()
 
     def init_signs(self):
         self.sign_q = queue.Queue()
@@ -107,7 +112,12 @@ class Controller:
             if '1' in result[2:]:
                 self.distract_sensor.push(1)
         
-        self.accel_sensor.push(self.imu.linearAcc())
+        accel_arr = self.imu.linearAcc()
+        self.accel_sensor.push(np.norm(accel_arr[:2]))
+        
+        self.gps.readGPS()
+        self.speed_sensor.push(self.gps.speed())
+        self.location_sensor.push((self.gps.lat(), self.gps.long()))
 
 
         # check for incidents

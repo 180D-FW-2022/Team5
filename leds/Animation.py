@@ -13,6 +13,7 @@ class Animation:
         self.finished = False
 
     def play(self):
+        print("Actually playing animation " + str(self.id))
         if self.id == 0:
             self.currently_playing = False
         elif self.id == 1: 

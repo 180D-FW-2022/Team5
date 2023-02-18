@@ -15,8 +15,12 @@ from leds.AnimationPlayer import AnimationPlayer
 from leds.Animation import Animation
 from speech.SpeechArbitrator import SpeechArbitrator
 
+from mock.MockSpeechDetector import MockSpeechDetector
+
 class Main_Control:
     def __init__(self):
+        self.io_test_mode = True
+
         with open('config.txt') as f:
             data = f.read()
             f.close()
@@ -29,6 +33,10 @@ class Main_Control:
         self.ser = uart_utils.initialize_serial()
         self.animationPlayer = AnimationPlayer()
         self.speechArbitrator = SpeechArbitrator(self.animationPlayer)
+
+        if (self.io_test_mode == True):
+            self.mockSpeechDetector = MockSpeechDetector(1)
+            self.mock_speech_det_step = -1
 
         #self.imu = IMU.IMU()
 
@@ -55,15 +63,19 @@ class Main_Control:
             self.state = [[accY, speed, delta_speed]] + self.state[0 : state_length - 1]
 
     def try_uart_read(self):
-        # try reading comms from UART
-        received_data = uart_receiver.read_all(self.ser)
-        # process received string
-        if (len(received_data) != 0):       
-            raw_data_str = uart_utils.byte2str(received_data)
-            data_src, data_str = uart_receiver.extract_msg(raw_data_str)
-            print("received: " + data_str + " -from device " + str(data_src))
-            return data_str
-        return None
+        if (self.io_test_mode == True):
+            self.mock_speech_det_step = self.mock_speech_det_step + 1
+            return self.mockSpeechDetector.run_mock_speech_detector(self.mock_speech_det_step)
+        else:
+            # try reading comms from UART
+            received_data = uart_receiver.read_all(self.ser)
+            # process received string
+            if (len(received_data) != 0):       
+                raw_data_str = uart_utils.byte2str(received_data)
+                data_src, data_str = uart_receiver.extract_msg(raw_data_str)
+                print("received: " + data_str + " -from device " + str(data_src))
+                return data_str
+            return None
 
 
     def run(self):
@@ -76,9 +88,11 @@ class Main_Control:
                 if (speech_code == 2):
                     self.should_suggest = True
                     self.animationPlayer.queueAnimation(Animation(3))
+                    print("Attempting to queue enable animation")
                 elif (speech_code == 3):
                     self.should_suggest = False
                     self.animationPlayer.queueAnimation(Animation(4))
+                    print("Attempting to queue stopping animation")
 
 
 controller = Main_Control()

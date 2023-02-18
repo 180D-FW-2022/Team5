@@ -27,6 +27,7 @@ class SpeechArbitrator:
             # i.e. in main routine, if t_last_interaction > threshold and expecting_cmd is true, toggle back to false
             self.expecting_cmd = True
             if (self.animationPlayer != None):
+                print("Attempting to queue hey ed Animation")
                 self.animationPlayer.queueAnimation(Animation(2))
             self.t_last_interaction = time.time()
             return 0

@@ -44,6 +44,7 @@ class AnimationPlayer:
         self.playq.append(animation)
 
     def playAnimation(self):
+        # keep this going for persistent animations
         self.playq[0].play()
         if (self.playq[0].persistent == False):
             self.playq.pop()

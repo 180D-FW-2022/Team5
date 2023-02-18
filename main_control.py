@@ -71,7 +71,7 @@ class Main_Control:
         led_thread.start()
         while(1):
             speech_str = self.try_uart_read()
-            if (type(speech_str) != None):
+            if (speech_str != None):
                 speech_code = self.speechArbitrator.arbitrate_speech(speech_str)
                 if (speech_code == 2):
                     self.should_suggest = True

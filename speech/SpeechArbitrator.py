@@ -14,12 +14,14 @@ class SpeechArbitrator:
         self.t_last_interaction = time.time()
 
         #reverse the key value map because 1-to-1
-        with open('../speech/speechmap.json') as json_data:
+        with open('./speech/speechmap.json') as json_data:
             kvmap = json.loads(json_data.read())
             self.speechmap = {v: k for k, v in kvmap.items()}
 
     def arbitrate_speech(self,phrase_id):
         print(phrase_id)
+        if (phrase_id == None):
+            return -1
         if (self.speechmap[phrase_id] == 'hey ed '):
             # TODO: add a timeout such that when the user says hey ed, and no valid speech is detected, return to not expect cmd
             # i.e. in main routine, if t_last_interaction > threshold and expecting_cmd is true, toggle back to false

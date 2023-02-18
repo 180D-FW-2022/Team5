@@ -24,6 +24,12 @@ class MockSpeechDetector:
             if (step == 4):
                 time.sleep(3)
                 return "3" # STOP! light up
+            if (step == 5):
+                time.sleep(3)
+                return "1" # HEY ED! light up, light turns off in 5s due to timeout
+            if (step == 6):
+                time.sleep(3)
+                return "4" # ENABLE! no light, due to timeout
             else:
                 return None
             

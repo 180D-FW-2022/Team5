@@ -45,6 +45,8 @@ class Main_Control:
         self.state = [[0, 0, 0]] 
 
         self.should_suggest = settings["enable_suggest"]
+
+        self.animationPlayer.queueAnimation(Animation(1))
   
 
     def change_config(self):

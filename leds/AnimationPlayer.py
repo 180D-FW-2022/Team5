@@ -48,6 +48,9 @@ class AnimationPlayer:
         self.playq[0].play()
         self.playq.pop()
 
-    def dequeueAnimation(self):
-        self.playq.pop()
+    def clearAnimation(self):
+        if (len(self.playq) > 0):
+            self.playq.pop()
+        else:
+            self.queueAnimation(Animation(0))
 

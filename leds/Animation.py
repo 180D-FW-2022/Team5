@@ -15,6 +15,7 @@ class Animation:
     def play(self):
         print("Actually playing animation " + str(self.id))
         if self.id == 0:
+            self.reset()
             self.currently_playing = False
         elif self.id == 1: 
             self.reset()

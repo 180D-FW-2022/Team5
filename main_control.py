@@ -66,6 +66,7 @@ class Main_Control:
         print("UART read attempted")
         if (self.io_test_mode == True):
             self.mock_speech_det_step = self.mock_speech_det_step + 1
+            time.sleep(1)
             return self.mockSpeechDetector.run_mock_speech_detector(self.mock_speech_det_step)
         else:
             # try reading comms from UART

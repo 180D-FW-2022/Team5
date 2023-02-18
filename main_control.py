@@ -81,8 +81,10 @@ class Main_Control:
     def run(self):
         led_thread = threading.Thread(target=self.animationPlayer.play)
         led_thread.start()
+        print("LED Thread started")
         while(1):
             speech_str = self.try_uart_read()
+            print("UART read attempted")
             if (speech_str != None):
                 speech_code = self.speechArbitrator.arbitrate_speech(speech_str)
                 if (speech_code == 2):

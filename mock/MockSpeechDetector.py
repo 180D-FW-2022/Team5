@@ -7,7 +7,7 @@ class MockSpeechDetector:
         self.scheme = scheme
 
     def run_mock_speech_detector(self, step:int):
-        time.sleep(2000)
+        print("Running scheme " + str(self.scheme) + " of MOCK SPEECH DETECTOR")
         if (self.scheme == 1):
             if (step == 0):
                 return "1"

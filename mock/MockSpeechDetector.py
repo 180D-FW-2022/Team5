@@ -10,9 +10,20 @@ class MockSpeechDetector:
         print("Running scheme " + str(self.scheme) + " of MOCK SPEECH DETECTOR")
         if (self.scheme == 1):
             if (step == 0):
-                return "1"
+                time.sleep(1)
+                return "1" # HEY ED! light up
             if (step == 1):
-                return "4"
+                time.sleep(1)
+                return "4" # ENABLE! light up
+            if (step == 2):
+                time.sleep(3)
+                return "3" # STOP! no light, due to no "hey ed" utterance
+            if (step == 3):
+                time.sleep(1)
+                return "1" # HEY ED! light up
+            if (step == 4):
+                time.sleep(1)
+                return "4" # STOP! light up
             else:
                 return None
             

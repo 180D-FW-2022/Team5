@@ -88,11 +88,11 @@ class Main_Control:
             speech_str = self.try_uart_read()
             if (speech_str != None):
                 speech_code = self.speechArbitrator.arbitrate_speech(speech_str)
-                if (speech_code == 2):
+                if (speech_code == 3):
                     self.should_suggest = True
                     self.animationPlayer.queueAnimation(Animation(3))
                     print("Attempting to queue enable animation")
-                elif (speech_code == 3):
+                elif (speech_code == 4):
                     self.should_suggest = False
                     self.animationPlayer.queueAnimation(Animation(4))
                     print("Attempting to queue stopping animation")

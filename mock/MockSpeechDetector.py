@@ -10,9 +10,9 @@ class MockSpeechDetector:
         time.sleep(2000)
         if (self.scheme == 1):
             if (step == 0):
-                return "hey ed "
+                return "1"
             if (step == 1):
-                return "enable "
+                return "4"
             else:
                 return None
             

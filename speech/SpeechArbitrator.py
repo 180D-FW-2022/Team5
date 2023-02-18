@@ -4,8 +4,8 @@ import time
 import sys
 sys.path.append('../')
 
-import leds.AnimationPlayer as AnimationPlayer
-import leds.Animation as Animation
+from leds.AnimationPlayer import AnimationPlayer
+from leds.Animation import Animation
 
 class SpeechArbitrator:
     def __init__(self, animationPlayer):

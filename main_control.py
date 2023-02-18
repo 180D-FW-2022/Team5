@@ -63,6 +63,7 @@ class Main_Control:
             self.state = [[accY, speed, delta_speed]] + self.state[0 : state_length - 1]
 
     def try_uart_read(self):
+        print("UART read attempted")
         if (self.io_test_mode == True):
             self.mock_speech_det_step = self.mock_speech_det_step + 1
             return self.mockSpeechDetector.run_mock_speech_detector(self.mock_speech_det_step)
@@ -84,7 +85,6 @@ class Main_Control:
         print("LED Thread started")
         while(1):
             speech_str = self.try_uart_read()
-            print("UART read attempted")
             if (speech_str != None):
                 speech_code = self.speechArbitrator.arbitrate_speech(speech_str)
                 if (speech_code == 2):

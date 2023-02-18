@@ -22,6 +22,10 @@ class SpeechArbitrator:
         print(phrase_id)
         if (phrase_id == None):
             return -1
+        # cooldown to exit when expecting_cmd is on for too long
+        if (self.expecting_cmd == True and time.time() - self.t_last_interaction > 5):
+            self.animationPlayer.dequeueAnimation()
+            self.expecting_cmd = False
         if (self.speechmap[phrase_id] == 'hey ed '):
             # TODO: add a timeout such that when the user says hey ed, and no valid speech is detected, return to not expect cmd
             # i.e. in main routine, if t_last_interaction > threshold and expecting_cmd is true, toggle back to false

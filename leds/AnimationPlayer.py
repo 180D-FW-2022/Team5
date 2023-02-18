@@ -48,4 +48,6 @@ class AnimationPlayer:
         self.playq[0].play()
         self.playq.pop()
 
+    def dequeueAnimation(self):
+        self.playq.pop()
 

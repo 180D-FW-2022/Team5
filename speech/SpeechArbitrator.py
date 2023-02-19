@@ -18,6 +18,8 @@ class SpeechArbitrator:
             kvmap = json.loads(json_data.read())
             self.speechmap = {v: k for k, v in kvmap.items()}
 
+        print("- SpeechArbitrator Initialized")
+
     def arbitrate_speech(self,phrase_id):
         print(phrase_id)
         if (phrase_id == None):

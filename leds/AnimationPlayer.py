@@ -21,6 +21,7 @@ class AnimationPlayer:
 
         self.playq = []
         self.current_id = 0
+        print("- AnimationPlayer Initialized")
 
     '''
         animation IDs correspond to states of Edd

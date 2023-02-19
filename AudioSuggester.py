@@ -7,6 +7,7 @@ class AudioSuggester():
     def __init__(self):
         self.engine = pyttsx3.init()
         self.q = queue.Queue()
+        print("- AudioSuggester Initialized")
 
     def run(self):
         while True:

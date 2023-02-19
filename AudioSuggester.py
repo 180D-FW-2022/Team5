@@ -2,7 +2,7 @@ import pyttsx3
 import queue
 import time
 
-class AudioSuggester():
+class AudioSuggester:
     def __init__(self):
         self.engine = pyttsx3.init()
         self.q = queue.Queue()

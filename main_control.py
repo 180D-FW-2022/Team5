@@ -23,9 +23,9 @@ cap = cv2.VideoCapture(0)
 sign_cam = None
 if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to driver-facing webcam
     sign_cam = cap
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(2)
 else:
-    sign_cam = cv2.VideoCapture(1)
+    sign_cam = cv2.VideoCapture(2)
 print("connected cams")
 
 

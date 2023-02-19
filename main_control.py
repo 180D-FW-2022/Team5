@@ -31,7 +31,7 @@ def run_driver_detect(queue_object, camera, use_picam=False):
     ds.runContinuously(True)
 
 
-def run_stop_signs(queue_object, camera, use_picam=True):
+def run_stop_signs(queue_object, camera, use_picam=False):
     det = sign_tracker.my_detector([224,224])
     while True:
         frame = None

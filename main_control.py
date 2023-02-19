@@ -72,7 +72,7 @@ class Controller:
         stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1), (self.speed_sensor.not_find_below, 5)])
         tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)])
         distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)])
-        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.above, 1000)])
+        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.find_above, 1000)])
 
         self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident, accel_incident]
         self.imu = IMU.IMU()

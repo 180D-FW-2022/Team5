@@ -8,10 +8,7 @@ class AudioSuggester():
         self.engine = pyttsx3.init()
         self.q = queue.Queue()
 
-        self.runner = threading.Thread(target=self.__run)
-        self.runner.start()
-
-    def __run(self):
+    def run(self):
         while True:
             if not self.q.empty():
                 text = self.q.get()

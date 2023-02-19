@@ -88,6 +88,11 @@ class Main_Control:
         led_thread = threading.Thread(target=self.animationPlayer.play)
         led_thread.start()
         print("LED Thread started")
+
+        suggest_thread = threading.Thread(target=self.audioSuggester.run)
+        suggest_thread.start()
+        print("suggest Thread started")
+
         while(1):
             speech_str = self.try_uart_read()
             if (speech_str != None):

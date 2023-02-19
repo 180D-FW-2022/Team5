@@ -12,7 +12,7 @@ class Sensor:
 
         if self.hist and time.time() > self.hist[-1][0] + self.min_delay:
             self.hist.push((time.time(), value))
-        while time.time() > self.hist[0][0] + self.hist_length:
+        while self.hist and time.time() > self.hist[0][0] + self.hist_length:
             self.hist.pop(0)
         
     def find_above(self, thresh):
@@ -41,4 +41,4 @@ class Sensor:
         return value in [x[1] for x in self.hist]
 
     def get_recent(self):
-        return self.hist[-1][1]
+        return self.hist[-1][1] if self.hist else self.default

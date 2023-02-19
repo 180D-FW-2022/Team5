@@ -1,5 +1,0 @@
-hey ed /1e-10/
-power off /1e-25/
-stop /1e-20/
-enable /1e-20/
-report /1e-25/

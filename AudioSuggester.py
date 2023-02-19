@@ -8,6 +8,7 @@ class AudioSuggester():
         self.q = queue.Queue()
         print("- AudioSuggester Initialized")
 
+
     def run(self):
         while True:
             if not self.q.empty():

@@ -9,13 +9,14 @@ class Sensor:
         self.default=default
     
     def push(self, value):
-        if time.time() > self.hist[-1][0] + self.min_delay:
+
+        if self.hist and time.time() > self.hist[-1][0] + self.min_delay:
             self.hist.push((time.time(), value))
         while time.time() > self.hist[0][0] + self.hist_length:
             self.hist.pop(0)
         
     def find_above(self, thresh):
-        while time.time() > self.hist[0][0] + self.hist_length:
+        while self.hist and time.time() > self.hist[0][0] + self.hist_length:
             self.hist.pop(0)
         if not self.hist:
             return self.default > thresh
@@ -25,7 +26,7 @@ class Sensor:
         return not self.find_above(thresh)
 
     def find_below(self, thresh):
-        while time.time() > self.hist[0][0] + self.hist_length:
+        while self.hist and time.time() > self.hist[0][0] + self.hist_length:
             self.hist.pop(0)
         if not self.hist:
             return self.default < thresh
@@ -35,7 +36,7 @@ class Sensor:
         return not self.find_below(thresh)
 
     def find_case(self, value):
-        while time.time() > self.hist[0][0] + self.hist_length:
+        while self.hist and time.time() > self.hist[0][0] + self.hist_length:
             self.hist.pop(0)
         return value in [x[1] for x in self.hist]
 

@@ -5,7 +5,7 @@ class Incident:
     def __init__(self, name, refract_time, conditions) -> None:
         self.name = name
         self.refract_time = refract_time
-        self.conditions
+        self.conditions = conditions
         self.past_time = time.time()
         pass
 

@@ -15,6 +15,9 @@ import comms.uart_rec as uart_receiver
 import speech.SpeechArbitrator as SpeechArbitrator
 import numpy as np
 import gps
+from firebase_rt import *
+import firebase_admin
+from firebase_admin import credentials, storage, db
 
 cap = cv2.VideoCapture(0)
 sign_cam = None
@@ -45,6 +48,19 @@ def run_stop_signs(queue_object, camera, use_picam=True):
 class Controller:
 
     def __init__(self) -> None:
+        with open('config.txt') as f:
+            data = f.read()
+            f.close()
+
+        settings = json.loads(data)
+
+        self.should_suggest = settings["enable_suggest"]
+        self.device = settings["device_id"]
+
+        self.database = Database(self.device)
+        self.ref = self.database.get_ref()
+
+
         self.stop_sensor = Sensor(5,0.2)
         self.sleep_sensor = Sensor(10,0.3)
         self.speed_sensor = Sensor(10,0.25)

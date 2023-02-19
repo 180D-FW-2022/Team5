@@ -121,11 +121,14 @@ class Controller:
 
         # update sensors
         if not self.sign_q.empty():
+            print("sign")
             self.sign_q.get()
             self.stop_sensor.push(1)
         
         if not self.driver_q.empty():
+            
             result = self.driver_q.get()
+            print(result)
             if '1' in result[0:2]:
                 self.sleep_sensor.push(1)
             if '1' in result[2:]:

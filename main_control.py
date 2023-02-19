@@ -5,7 +5,6 @@ import queue
 import cv2
 import serial
 import time
-import main_control
 import suggest
 from sensor_class import Sensor
 from incident import Incident

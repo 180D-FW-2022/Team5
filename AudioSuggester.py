@@ -3,8 +3,8 @@ import queue
 import time
 
 class AudioSuggester():
-    def __init__(self, engine):
-        self.engine = engine
+    def __init__(self):
+        self.engine = pyttsx3.init()
         self.q = queue.Queue()
         print("- AudioSuggester Initialized")
 

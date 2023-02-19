@@ -34,10 +34,9 @@ class Main_Control:
 
         self.ref = self.database.get_ref()
         self.ser = uart_utils.initialize_serial()
+        self.audioSuggester = AudioSuggester()
         self.animationPlayer = AnimationPlayer()
         self.speechArbitrator = SpeechArbitrator(self.animationPlayer)
-        speech_engine = pyttsx3.init()
-        self.audioSuggester = AudioSuggester(speech_engine)
 
         if (self.io_test_mode == True):
             self.mockSpeechDetector = MockSpeechDetector(1)

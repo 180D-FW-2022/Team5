@@ -24,7 +24,7 @@ class DriverState:
         # instantiation of the dlib face detector object
         self.Detector = dlib.get_frontal_face_detector()
         # instantiation of the dlib keypoint detector model
-        self.Predictor = dlib.shape_predictor("./shape_predictor_68_face_landmarks.dat")
+        self.Predictor = dlib.shape_predictor("./combined_vision/shape_predictor_68_face_landmarks.dat")
 
         # instantiation of the eye detector and pose estimator objects
         self.Eye_det = EyeDet(show_processing=False)

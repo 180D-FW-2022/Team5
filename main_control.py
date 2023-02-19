@@ -129,7 +129,7 @@ class Controller:
                 self.distract_sensor.push(1)
         
         accel_arr = self.imu.linearAcc()
-        self.accel_sensor.push(np.norm(accel_arr[:2]))
+        self.accel_sensor.push(np.linalg.norm(accel_arr[:2]))
         
         self.gps.readGPS()
         self.speed_sensor.push(self.gps.speed())

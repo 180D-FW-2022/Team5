@@ -31,7 +31,7 @@ def initialize_serial():
 class my_detector():
 
     def __init__(self, imgsz) -> None:
-        weights = "best.pt"
+        weights = "combined_vision/best.pt"
         data = ROOT / 'data/coco128.yaml'
         # Load model
         device= ''

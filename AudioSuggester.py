@@ -4,12 +4,12 @@ import time
 
 class AudioSuggester:
     def __init__(self):
-        self.engine = pyttsx3.init()
         self.q = queue.Queue()
         print("- AudioSuggester Initialized")
 
 
     def run(self):
+        self.engine = pyttsx3.init()
         while True:
             if not self.q.empty():
                 text = self.q.get()

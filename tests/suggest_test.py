@@ -1,8 +1,21 @@
 import sys
+import threading
+import time
 sys.path.append('../')
 
 from AudioSuggester import AudioSuggester
 
 engine = AudioSuggester()
 text = "testing testing testing"
-engine.say(text)
+
+suggest_thread = threading.Thread(target=self.audioSuggester.run)
+suggest_thread.start()
+print("suggest Thread started")
+
+time.sleep(3)
+
+engine.approach_stop()
+
+time.sleep(3)
+
+engine.enable_suggestions()

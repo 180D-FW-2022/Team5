@@ -19,11 +19,15 @@ from firebase_rt import *
 import firebase_admin
 from firebase_admin import credentials, storage, db
 
+print("connecting cams")
 cap = cv2.VideoCapture(0)
 sign_cam = None
 if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to driver-facing webcam
     sign_cam = cap
     cap = cv2.VideoCapture(1)
+else:
+    sign_cam = cv2.VideoCapture(1)
+print("connected cams")
 
 
 def run_driver_detect(queue_object, camera, use_picam=False):

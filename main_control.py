@@ -7,6 +7,8 @@ from dummy import *
 from firebase_rt import *
 from firebase_admin import credentials, storage, db
 
+import pyttsx3
+
 import threading
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
@@ -34,7 +36,8 @@ class Main_Control:
         self.ser = uart_utils.initialize_serial()
         self.animationPlayer = AnimationPlayer()
         self.speechArbitrator = SpeechArbitrator(self.animationPlayer)
-        self.audioSuggester = AudioSuggester()
+        speech_engine = pyttsx3.init()
+        self.audioSuggester = AudioSuggester(speech_engine)
 
         if (self.io_test_mode == True):
             self.mockSpeechDetector = MockSpeechDetector(1)

@@ -1,11 +1,10 @@
 import pyttsx3
-import threading
 import queue
 import time
 
 class AudioSuggester():
-    def __init__(self):
-        self.engine = pyttsx3.init()
+    def __init__(self, engine):
+        self.engine = engine
         self.q = queue.Queue()
         print("- AudioSuggester Initialized")
 

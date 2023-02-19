@@ -2,7 +2,7 @@ import json
 import sys
 import time
 
-from suggest import *
+from AudioSuggester import *
 from dummy import *
 from firebase_rt import *
 from firebase_admin import credentials, storage, db
@@ -14,6 +14,7 @@ import comms.uart_rec as uart_receiver
 from leds.AnimationPlayer import AnimationPlayer
 from leds.Animation import Animation
 from speech.SpeechArbitrator import SpeechArbitrator
+from AudioSuggester import AudioSuggester
 
 from mock.MockSpeechDetector import MockSpeechDetector
 
@@ -33,6 +34,7 @@ class Main_Control:
         self.ser = uart_utils.initialize_serial()
         self.animationPlayer = AnimationPlayer()
         self.speechArbitrator = SpeechArbitrator(self.animationPlayer)
+        self.audioSuggester = AudioSuggester()
 
         if (self.io_test_mode == True):
             self.mockSpeechDetector = MockSpeechDetector(1)
@@ -93,10 +95,12 @@ class Main_Control:
                 if (speech_code == 3):
                     self.should_suggest = True
                     self.animationPlayer.queueAnimation(Animation(3))
+                    self.audioSuggester.enable_suggestions()
                     print("Attempting to queue enable animation")
                 elif (speech_code == 4):
                     self.should_suggest = False
                     self.animationPlayer.queueAnimation(Animation(4))
+                    self.audioSuggester.disable_suggestions()
                     print("Attempting to queue stopping animation")
 
 

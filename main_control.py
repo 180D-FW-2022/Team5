@@ -16,14 +16,14 @@ import comms.uart_rec as uart_receiver
 from leds.AnimationPlayer import AnimationPlayer
 from leds.Animation import Animation
 from speech.ThreadedSpeechDetector import ThreadedSpeechDetector
-from speech.SpeechArbitrator import SpeechArbitrator
+from speech.StateArbitrator import StateArbitrator
 from AudioSuggester import AudioSuggester
 
 from mock.MockSpeechDetector import MockSpeechDetector
 
 class Main_Control:
     def __init__(self):
-        self.io_test_mode = True
+        self.io_test_mode = False
 
         with open('config.txt') as f:
             data = f.read()
@@ -37,7 +37,7 @@ class Main_Control:
         self.ser = uart_utils.initialize_serial()
         self.audioSuggester = AudioSuggester()
         self.animationPlayer = AnimationPlayer()
-        self.speechArbitrator = SpeechArbitrator(self.animationPlayer)
+        self.stateArbitrator = StateArbitrator(self.animationPlayer, self.audioSuggester)
         self.threadedSpeechDetector = ThreadedSpeechDetector()
 
         if (self.io_test_mode == True):
@@ -98,21 +98,7 @@ class Main_Control:
         print("suggest Thread started")
 
         self.threadedSpeechDetector.run()
-        
-        while(1):
-            speech_str = self.try_uart_read()
-            if (speech_str != None):
-                speech_code = self.speechArbitrator.arbitrate_speech(speech_str)
-                if (speech_code == 3):
-                    self.should_suggest = True
-                    self.animationPlayer.queueAnimation(Animation(3))
-                    self.audioSuggester.enable_suggestions()
-                    print("Attempting to queue enable animation")
-                elif (speech_code == 4):
-                    self.should_suggest = False
-                    self.animationPlayer.queueAnimation(Animation(4))
-                    self.audioSuggester.disable_suggestions()
-                    print("Attempting to queue stopping animation")
+        print("speech processing Thread started")
 
 
 controller = Main_Control()

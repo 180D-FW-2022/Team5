@@ -5,10 +5,13 @@ import speech_recognition as sr
 import sys
 sys.path.append('../')
 
+from speech.StateArbitrator import StateArbitrator
+
 class ThreadedSpeechDetector:
-    def __init__(self):
+    def __init__(self, stateArbitrator:StateArbitrator):
         with open('./speech/speechmap.json') as json_data:
             self.speechmap = json.loads(json_data.read())
+        self.stateArbitrator = stateArbitrator
         self.r = sr.Recognizer()
         self.m = sr.Microphone()
         with self.m as source:
@@ -19,7 +22,20 @@ class ThreadedSpeechDetector:
     def run(self):
         def callback(recognizer, audio):
             try:
-                print("Google Speech Recognition thinks you said " + recognizer.recognize_google(audio))
+                text = recognizer.recognize_google(audio)
+                if (text == ""):
+                    return
+                print("-- Google Speech Recognition thinks you said " + text)
+                if 'hey ed' in text:
+                    self.stateArbitrator.arbitrate_speech(self.speechmap['hey ed '])
+                elif 'power off' in text:
+                    self.stateArbitrator.arbitrate_speech(self.speechmap['power off '])
+                elif 'stop' in text:
+                    self.stateArbitrator.arbitrate_speech(self.speechmap['stop '])
+                elif 'enable' in text:
+                    self.stateArbitrator.arbitrate_speech(self.speechmap['enable '])
+                elif 'report' in text:
+                    self.stateArbitrator.arbitrate_speech(self.speechmap['report '])
             except sr.UnknownValueError:
                 print("Google Speech Recognition could not understand audio")
             except sr.RequestError as e:

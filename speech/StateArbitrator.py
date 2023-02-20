@@ -6,11 +6,14 @@ sys.path.append('../')
 
 from leds.AnimationPlayer import AnimationPlayer
 from leds.Animation import Animation
+from AudioSuggester import AudioSuggester
 
-class SpeechArbitrator:
-    def __init__(self, animationPlayer):
+class StateArbitrator:
+    def __init__(self, animationPlayer:AnimationPlayer, audioSuggester:AudioSuggester):
         self.animationPlayer = animationPlayer
+        self.audioSuggester = AudioSuggester
         self.expecting_cmd = False
+        self.should_suggest = True
         self.t_last_interaction = time.time()
 
         #reverse the key value map because 1-to-1
@@ -50,14 +53,22 @@ class SpeechArbitrator:
                 self.expecting_cmd = False
                 return 4
             if self.speechmap[phrase_id] == 'enable ':
-                print("Enabling suggestions")
-                self.t_last_interaction = time.time()
                 self.expecting_cmd = False
+                print("Enabling suggestions")
+                self.should_suggest = True
+                self.animationPlayer.queueAnimation(Animation(3))
+                self.audioSuggester.enable_suggestions()
+                print("Attempting to queue enable animation")
+                self.t_last_interaction = time.time()
                 return 3
             if self.speechmap[phrase_id] == 'report ':
-                print("Providing Summary")
-                self.t_last_interaction = time.time()
                 self.expecting_cmd = False
+                print("Providing Summary")
+                self.should_suggest = False
+                self.animationPlayer.queueAnimation(Animation(4))
+                self.audioSuggester.disable_suggestions()
+                print("Attempting to queue stopping animation")
+                self.t_last_interaction = time.time()
                 return 2
 
         return 0

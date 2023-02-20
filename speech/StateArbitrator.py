@@ -1,5 +1,6 @@
 import json
 import time
+from threading import lock
 
 import sys
 sys.path.append('../')
@@ -16,6 +17,8 @@ class StateArbitrator:
         self.should_suggest = True
         self.t_last_interaction = time.time()
 
+        self.speech_queue = []
+
         #reverse the key value map because 1-to-1
         with open('./speech/speechmap.json') as json_data:
             kvmap = json.loads(json_data.read())
@@ -23,14 +26,14 @@ class StateArbitrator:
 
         print("- SpeechArbitrator Initialized")
 
+    def enqueue_speech(self, phrase_id):
+        self.speech_queue.append(phrase_id)
+
     def arbitrate_speech(self,phrase_id):
         print(phrase_id)
         if (phrase_id == None):
             return -1
         # cooldown to exit when expecting_cmd is on for too long
-        if (self.expecting_cmd == True and time.time() - self.t_last_interaction > 5):
-            self.animationPlayer.clearAnimation()
-            self.expecting_cmd = False
         if (self.speechmap[phrase_id] == 'hey ed '):
             # TODO: add a timeout such that when the user says hey ed, and no valid speech is detected, return to not expect cmd
             # i.e. in main routine, if t_last_interaction > threshold and expecting_cmd is true, toggle back to false
@@ -70,6 +73,12 @@ class StateArbitrator:
                 print("Attempting to queue stopping animation")
                 self.t_last_interaction = time.time()
                 return 2
-
         return 0
 
+    def loop_state_updater(self):
+        if (self.expecting_cmd == True and time.time() - self.t_last_interaction > 5):
+            self.animationPlayer.clearAnimation()
+            self.expecting_cmd = False
+        self.arbitrate_speech(self.speech_queue[0])
+        self.speech_queue.pop()
+        

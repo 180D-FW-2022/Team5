@@ -28,15 +28,15 @@ class ThreadedSpeechDetector:
                 text = text.lower()
                 print("-- Google Speech Recognition thinks you said " + text)
                 if 'hey ed' in text:
-                    self.stateArbitrator.arbitrate_speech(self.speechmap['hey ed '])
+                    self.stateArbitrator.enqueue_speech(self.speechmap['hey ed '])
                 elif 'power off' in text:
-                    self.stateArbitrator.arbitrate_speech(self.speechmap['power off '])
+                    self.stateArbitrator.enqueue_speech(self.speechmap['power off '])
                 elif 'stop' in text:
-                    self.stateArbitrator.arbitrate_speech(self.speechmap['stop '])
+                    self.stateArbitrator.enqueue_speech(self.speechmap['stop '])
                 elif 'enable' in text:
-                    self.stateArbitrator.arbitrate_speech(self.speechmap['enable '])
+                    self.stateArbitrator.enqueue_speech(self.speechmap['enable '])
                 elif 'report' in text:
-                    self.stateArbitrator.arbitrate_speech(self.speechmap['report '])
+                    self.stateArbitrator.enqueue_speech(self.speechmap['report '])
             except sr.UnknownValueError:
                 print("Google Speech Recognition could not understand audio")
             except sr.RequestError as e:

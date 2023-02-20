@@ -100,6 +100,10 @@ class Main_Control:
         self.threadedSpeechDetector.run()
         print("speech processing Thread started")
 
+        while(True):
+            self.stateArbitrator.loop_state_updater()
+
+
 
 controller = Main_Control()
 controller.run()

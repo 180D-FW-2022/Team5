@@ -11,7 +11,7 @@ from AudioSuggester import AudioSuggester
 class StateArbitrator:
     def __init__(self, animationPlayer:AnimationPlayer, audioSuggester:AudioSuggester):
         self.animationPlayer = animationPlayer
-        self.audioSuggester = AudioSuggester
+        self.audioSuggester = audioSuggester
         self.expecting_cmd = False
         self.should_suggest = True
         self.t_last_interaction = time.time()

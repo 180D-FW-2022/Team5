@@ -16,13 +16,12 @@ class ThreadedSpeechDetector:
             self.r.non_speaking_duration = 0.3
             self.r.pause_threshold = 0.3
 
-    def callback(self, audio):
-        try:
-            print("Google Speech Recognition thinks you said " + self.r.recognize_google(audio))
-        except sr.UnknownValueError:
-            print("Google Speech Recognition could not understand audio")
-        except sr.RequestError as e:
-            print("Could not request results from Google Speech Recognition service; {0}".format(e))
-
     def run(self):
-        stop_listening = self.r.listen_in_background(self.m,self.callback)
+        def callback(audio):
+            try:
+                print("Google Speech Recognition thinks you said " + self.r.recognize_google(audio))
+            except sr.UnknownValueError:
+                print("Google Speech Recognition could not understand audio")
+            except sr.RequestError as e:
+                print("Could not request results from Google Speech Recognition service; {0}".format(e))
+        self.r.listen_in_background(self.m,callback)

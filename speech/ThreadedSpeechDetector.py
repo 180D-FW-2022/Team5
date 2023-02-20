@@ -25,6 +25,7 @@ class ThreadedSpeechDetector:
                 text = recognizer.recognize_google(audio)
                 if (text == ""):
                     return
+                text = text.lower()
                 print("-- Google Speech Recognition thinks you said " + text)
                 if 'hey ed' in text:
                     self.stateArbitrator.arbitrate_speech(self.speechmap['hey ed '])

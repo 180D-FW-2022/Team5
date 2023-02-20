@@ -38,7 +38,7 @@ class Main_Control:
         self.audioSuggester = AudioSuggester()
         self.animationPlayer = AnimationPlayer()
         self.stateArbitrator = StateArbitrator(self.animationPlayer, self.audioSuggester)
-        self.threadedSpeechDetector = ThreadedSpeechDetector()
+        self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
 
         if (self.io_test_mode == True):
             self.mockSpeechDetector = MockSpeechDetector(1)

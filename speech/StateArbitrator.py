@@ -45,14 +45,17 @@ class StateArbitrator:
 
         if self.expecting_cmd:
             if self.speechmap[phrase_id] == 'power off ':
+                self.expecting_cmd = False
                 print("turning off")
                 self.t_last_interaction = time.time()
-                self.expecting_cmd = False
                 return 1
             if self.speechmap[phrase_id] == 'stop ':
-                print("Disabling suggestions")
-                self.t_last_interaction = time.time()
                 self.expecting_cmd = False
+                print("Disabling suggestions")
+                self.should_suggest = False
+                self.animationPlayer.queueAnimation(Animation(4))
+                self.audioSuggester.disable_suggestions()
+                print("Attempting to queue stopping animation")
                 return 4
             if self.speechmap[phrase_id] == 'enable ':
                 self.expecting_cmd = False
@@ -66,10 +69,6 @@ class StateArbitrator:
             if self.speechmap[phrase_id] == 'report ':
                 self.expecting_cmd = False
                 print("Providing Summary")
-                self.should_suggest = False
-                self.animationPlayer.queueAnimation(Animation(4))
-                self.audioSuggester.disable_suggestions()
-                print("Attempting to queue stopping animation")
                 self.t_last_interaction = time.time()
                 return 2
         return 0

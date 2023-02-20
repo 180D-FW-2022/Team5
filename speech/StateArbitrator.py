@@ -74,7 +74,7 @@ class StateArbitrator:
         return 0
 
     def loop_state_updater(self):
-        if (self.expecting_cmd == True and time.time() - self.t_last_interaction > 5):
+        if (self.expecting_cmd == True and time.time() - self.t_last_interaction > 10):
             self.animationPlayer.clearAnimation()
             self.expecting_cmd = False
         if (len(self.speech_queue) != 0):

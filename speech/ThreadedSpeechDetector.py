@@ -16,8 +16,8 @@ class ThreadedSpeechDetector:
         self.m = sr.Microphone()
         with self.m as source:
             self.r.adjust_for_ambient_noise(source)
-            self.r.non_speaking_duration = 0.3
-            self.r.pause_threshold = 0.3
+            self.r.non_speaking_duration = 0.26
+            self.r.pause_threshold = 0.26
 
     def run(self):
         def callback(recognizer, audio):

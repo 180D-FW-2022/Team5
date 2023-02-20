@@ -1,6 +1,5 @@
 import json
 import time
-from threading import lock
 
 import sys
 sys.path.append('../')
@@ -79,6 +78,9 @@ class StateArbitrator:
         if (self.expecting_cmd == True and time.time() - self.t_last_interaction > 5):
             self.animationPlayer.clearAnimation()
             self.expecting_cmd = False
-        self.arbitrate_speech(self.speech_queue[0])
-        self.speech_queue.pop()
+        if (len(self.speech_queue) != 0):
+            print("Arbitrating speech_queue item " +str(self.speech_queue[0]))
+            self.arbitrate_speech(self.speech_queue[0])
+            self.speech_queue.pop()
+        time.sleep(0.05)
         

@@ -7,7 +7,7 @@ sys.path.append('../')
 
 class ThreadedSpeechDetector:
     def __init__(self):
-        with open('Team5/speech/speechmap.json') as json_data:
+        with open('./speech/speechmap.json') as json_data:
             self.speechmap = json.loads(json_data.read())
         self.r = sr.Recognizer()
         self.m = sr.Microphone()

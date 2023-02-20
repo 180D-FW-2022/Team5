@@ -15,6 +15,7 @@ import comms.uart_rec as uart_receiver
 
 from leds.AnimationPlayer import AnimationPlayer
 from leds.Animation import Animation
+from speech.ThreadedSpeechDetector import ThreadedSpeechDetector
 from speech.SpeechArbitrator import SpeechArbitrator
 from AudioSuggester import AudioSuggester
 
@@ -37,6 +38,7 @@ class Main_Control:
         self.audioSuggester = AudioSuggester()
         self.animationPlayer = AnimationPlayer()
         self.speechArbitrator = SpeechArbitrator(self.animationPlayer)
+        self.threadedSpeechDetector = ThreadedSpeechDetector()
 
         if (self.io_test_mode == True):
             self.mockSpeechDetector = MockSpeechDetector(1)
@@ -95,6 +97,8 @@ class Main_Control:
         suggest_thread.start()
         print("suggest Thread started")
 
+        self.threadedSpeechDetector.run()
+        
         while(1):
             speech_str = self.try_uart_read()
             if (speech_str != None):

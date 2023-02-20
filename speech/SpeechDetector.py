@@ -57,5 +57,5 @@ class SpeechDetector():
                     print("Providing Summary")
                 
 
-s =  SpeechDetect()
+s =  SpeechDetector()
 s.detect_speech()

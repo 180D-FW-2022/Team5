@@ -8,7 +8,7 @@ from AudioSuggester import AudioSuggester
 engine = AudioSuggester()
 text = "testing testing testing"
 
-suggest_thread = threading.Thread(target=self.audioSuggester.run)
+suggest_thread = threading.Thread(target=engine.run)
 suggest_thread.start()
 print("suggest Thread started")
 

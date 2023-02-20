@@ -14,7 +14,7 @@ class AudioSuggester():
                 text = self.q.get()
                 self.engine.say(text)
                 self.engine.runAndWait()
-            time.sleep(0.05)
+            time.sleep(0.1)
 
     def approach_stop(self):
         self.q.put("Approaching stop sign. Start slowing down!")

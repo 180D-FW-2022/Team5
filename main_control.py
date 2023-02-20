@@ -102,7 +102,7 @@ class Main_Control:
 
         while(True):
             self.stateArbitrator.loop_state_updater()
-            time.sleep(0.05)
+            time.sleep(0.1)
 
 
 

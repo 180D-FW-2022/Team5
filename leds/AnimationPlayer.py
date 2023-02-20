@@ -39,7 +39,7 @@ class AnimationPlayer:
         while (True):
             if (len(self.playq) != 0):
                 self.playAnimation()
-            time.sleep(0.05)
+            time.sleep(0.1)
 
     def queueAnimation(self, animation:Animation):
         self.playq.append(animation)

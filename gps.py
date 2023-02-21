@@ -77,7 +77,7 @@ class GPS:
     # Takes in 2 GPS points in the following format: [lat (deg), long (deg), time (s)]
     def __gpsSpeed(self, lon1, lat1, t1, lon2, lat2, t2):
         dx = self.__gpsDistance(lon1, lat1, lon2, lat2) # in miles
-        dt = (t2 - t1) / 3600.00 # in hours
+        dt = (t2 - t1 + 0.01) / 3600.00 # in hours
 
         return (dx/dt)
 

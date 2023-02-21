@@ -89,6 +89,8 @@ class Controller:
         self.ser = uart_utils.initialize_serial()
         self.gps = gps.GPS()
 
+        
+
     def init_signs(self):
         self.sign_q = queue.Queue()
         

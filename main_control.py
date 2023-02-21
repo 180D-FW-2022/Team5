@@ -102,7 +102,9 @@ class Controller:
         # process received string
         if (len(received_data) != 0):       
             raw_data_str = uart_utils.byte2str(received_data)
-            data_src, data_str = uart_receiver.extract_msg(raw_data_str)
+            # data_src, data_str = uart_receiver.extract_msg(raw_data_str)
+            data_str = raw_data_str
+            data_src = 1
             print("received: " + data_str + " -from device " + str(data_src))
 
             # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
@@ -120,12 +122,12 @@ class Controller:
         self.try_uart_read()
 
         # update sensors
-        if not self.sign_q.empty():
+        while not self.sign_q.empty():
             print("sign")
             self.sign_q.get()
             self.stop_sensor.push(1)
         
-        if not self.driver_q.empty():
+        while not self.driver_q.empty():
             
             result = self.driver_q.get()
             print(result)
@@ -137,7 +139,7 @@ class Controller:
         accel_arr = self.imu.linearAcc()
         self.accel_sensor.push(np.linalg.norm(accel_arr[:2]))
         
-        self.gps.readGPS()
+        #self.gps.readGPS()
         self.speed_sensor.push(self.gps.speed())
         self.location_sensor.push((self.gps.lat(), self.gps.long()))
 

@@ -2,7 +2,7 @@
   "name": "edd-app",
   "version": "0.1.0",
   "homepage": "https://180d-fw-2022.github.io/Team5/",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@firebase/app": "^0.9.0",
     "@firebase/auth": "^0.21.0",

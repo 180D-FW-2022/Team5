@@ -2,7 +2,7 @@ import speech_recognition as sr
 import serial
 import json
 
-class SpeechDetect():
+class SpeechDetector():
     def __init__(self):
         with open('Team5/speech/speechmap.json') as json_data:
             self.speechmap = json.loads(json_data.read())
@@ -16,8 +16,11 @@ class SpeechDetect():
         r = sr.Recognizer()
         text = ""
         with sr.Microphone() as source:
+            r.adjust_for_ambient_noise(source)
+            r.non_speaking_duration = 0.3
+            r.pause_threshold = 0.3
             while True:
-                audio = r.listen(source)
+                audio = r.listen(source, phrase_time_limit=3.0)
                 try:
                     text = r.recognize_google(audio).lower()
                 except sr.UnknownValueError:
@@ -54,5 +57,5 @@ class SpeechDetect():
                     print("Providing Summary")
                 
 
-s =  SpeechDetect()
+s =  SpeechDetector()
 s.detect_speech()

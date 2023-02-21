@@ -2,8 +2,6 @@ import threading, queue, json, cv2, serial, time
 import numpy as np
 from firebase_admin import credentials, storage, db
 
-import suggest
-
 from sensor_class import Sensor
 from incident import Incident
 
@@ -89,7 +87,7 @@ class Controller:
         self.ser = uart_utils.initialize_serial()
         self.gps = gps.GPS()
 
-        
+
 
     def init_signs(self):
         self.sign_q = queue.Queue()
@@ -118,9 +116,9 @@ class Controller:
             if (data_src == 1):
                 self.sa.arbitrate_speech(data_str)
                 if (data_str == "4"):
-                    suggest.enable_suggestions()
+                    self.audioSuggester.enable_suggestions()
                 if (data_str == "3"):
-                    suggest.disable_suggestions()
+                    self.audioSuggester.disable_suggestions()
             # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
 
     def init_io(self):
@@ -138,7 +136,7 @@ class Controller:
     def run_iter(self):
         self.stateArbitrator.loop_state_updater()
         # speech things
-        self.try_uart_read()
+        # self.try_uart_read()
 
         # update sensors
         while not self.sign_q.empty():

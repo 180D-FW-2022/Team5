@@ -9,7 +9,7 @@ from leds.Animation import Animation
 from AudioSuggester import AudioSuggester
 
 class StateArbitrator:
-    def __init__(self, animationPlayer:AnimationPlayer, audioSuggester:AudioSuggester):
+    def __init__(self, animationPlayer:AnimationPlayer, audioSuggester:AudioSuggester, should_suggest:bool):
         self.animationPlayer = animationPlayer
         self.audioSuggester = audioSuggester
         self.expecting_cmd = False

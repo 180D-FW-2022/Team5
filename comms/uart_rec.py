@@ -19,6 +19,8 @@ def read_all(port, chunk_size=400):
 
 # Checks if the message received is valid, returns the source of the message (this is hardcoded in the teensy)
 def extract_msg(data_str):
+    if (data_str == ""):
+        return 0,""
     if (data_str[len(data_str)-1] != '\n'  or data_str.count('\n') != 1):
         return 0, ""
     if (data_str[0] == 'D' and data_str[2] == '-' and data_str[1].isdigit()):

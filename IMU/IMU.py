@@ -140,10 +140,10 @@ class IMU:
 def main():
     imu = IMU()
     while True:
-        #print(imu.linearAcc())
+        print(imu.linearAcc())
         #print(imu.gyroIntegration())
         #print(imu.tiltCompensatedHeading())
-        print(imu.kalmanStateEstimate())
+        #print(imu.kalmanStateEstimate())
 
         time.sleep(0.1)
 

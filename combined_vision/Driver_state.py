@@ -83,7 +83,9 @@ class DriverState:
 
         # if the frame comes from webcam, flip it so it looks like a mirror.
         if CAPTURE_SOURCE == 0:
-            frame = cv2.flip(frame, 2)
+            # frame = cv2.rotate(frame, cv2.ROTATE_180)
+            # frame = cv2.flip(frame, 1)
+            frame = cv2.flip(frame, 0)
 
         # transform the BGR frame in grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)

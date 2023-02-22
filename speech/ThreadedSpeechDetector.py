@@ -13,7 +13,12 @@ class ThreadedSpeechDetector:
             self.speechmap = json.loads(json_data.read())
         self.stateArbitrator = stateArbitrator
         self.r = sr.Recognizer()
-        self.m = sr.Microphone()
+        mics = sr.Microphone.list_working_microphones()
+        for idx in mics:
+            if "USB 2.0 Camera" in mics[idx]:
+                self.m = sr.Microphone(device_index=idx)
+                break
+
         with self.m as source:
             self.r.adjust_for_ambient_noise(source)
             self.r.non_speaking_duration = 0.26

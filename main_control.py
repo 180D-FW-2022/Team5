@@ -20,15 +20,28 @@ from AudioSuggester import AudioSuggester
 import gps
 from firebase_rt import Database
 
+import os
 
 print("connecting cams")
-cap = cv2.VideoCapture(0) 
+# res = os.popen("sudo udevadm info --query=all /dev/video0 | grep 'VENDOR_ID\|MODEL_ID\|SERIAL_SHORT'")
+res = os.popen("sudo udevadm info --query=all /dev/video0 | grep 'SERIAL_SHORT'")
+driver_vendor = "0c45"
+driver_cam = None
 sign_cam = None
-if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to driver-facing webcam
-    sign_cam = cap
-    cap = cv2.VideoCapture(2)
-else:
+if driver_vendor in res:
+    driver_cam = cv2.VideoCapture(0) 
     sign_cam = cv2.VideoCapture(2)
+else:
+    driver_cam = cv2.VideoCapture(2) 
+    sign_cam = cv2.VideoCapture(0)
+    
+# cap = cv2.VideoCapture(0) 
+
+# if cap.get(cv2.CAP_PROP_FOURCC) != 1448695129: # number unique to driver-facing webcam
+#     sign_cam = cap
+#     cap = cv2.VideoCapture(2)
+# else:
+#     sign_cam = cv2.VideoCapture(2)
 print("connected cams")
 
 
@@ -98,7 +111,7 @@ class Controller:
 
     def init_driver(self):
         self.driver_q = queue.Queue()
-        driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, cap, False))
+        driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False))
         driver_thread.start()
 
     def try_uart_read(self):

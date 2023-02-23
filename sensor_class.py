@@ -9,9 +9,12 @@ class Sensor:
         self.default=default
     
     def push(self, value):
+        if not self.hist:
+            self.hist.append((time.time(), value))
+            return
 
         if self.hist and time.time() > self.hist[-1][0] + self.min_delay:
-            self.hist.push((time.time(), value))
+            self.hist.append((time.time(), value))
         while self.hist and time.time() > self.hist[0][0] + self.hist_length:
             self.hist.pop(0)
         
@@ -20,7 +23,7 @@ class Sensor:
             self.hist.pop(0)
         if not self.hist:
             return self.default > thresh
-        return max(self.hist, key=lambda x : x[1]) > thresh
+        return max(self.hist, key=lambda x : x[1])[1] > thresh
 
     def not_find_above(self, thresh):
         return not self.find_above(thresh)
@@ -30,7 +33,7 @@ class Sensor:
             self.hist.pop(0)
         if not self.hist:
             return self.default < thresh
-        return min(self.hist, key=lambda x : x[1]) < thresh
+        return min(self.hist, key=lambda x : x[1])[1] < thresh
 
     def not_find_below(self, thresh):
         return not self.find_below(thresh)

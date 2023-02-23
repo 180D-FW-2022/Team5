@@ -113,7 +113,7 @@ class GPS:
 def main():
     gps = GPS()
     while True: 
-        gps.read()
+        gps.readGPS()
         print(gps.lat())
         print(gps.long())
         print(gps.speed())

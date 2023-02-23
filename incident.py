@@ -14,6 +14,8 @@ class Incident:
         if time.time() < self.past_time + self.refract_time:
             return False
         for f, v in self.conditions:
+            if self.name == "Tired While Driving":
+                print("incident check", f(v))
             if not f(v):
                 return False
         print("INCIDENT", self.name)

@@ -24,7 +24,7 @@ import os
 
 print("connecting cams")
 # res = os.popen("sudo udevadm info --query=all /dev/video0 | grep 'VENDOR_ID\|MODEL_ID\|SERIAL_SHORT'")
-res = os.popen("sudo udevadm info --query=all /dev/video0 | grep 'SERIAL_SHORT'")
+res = os.popen("sudo udevadm info --query=all /dev/video0 | grep 'VENDOR_ID\|MODEL_ID\|SERIAL_SHORT'")
 driver_vendor = "0c45"
 driver_cam = None
 sign_cam = None

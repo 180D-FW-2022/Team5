@@ -13,11 +13,17 @@ class ThreadedSpeechDetector:
             self.speechmap = json.loads(json_data.read())
         self.stateArbitrator = stateArbitrator
         self.r = sr.Recognizer()
-        mics = sr.Microphone.list_working_microphones()
+        mics = sr.Microphone().list_working_microphones()
+        #time.sleep(1)
         for idx in mics:
             if "USB 2.0 Camera" in mics[idx]:
                 self.m = sr.Microphone(device_index=idx)
+                print("THIS IS THE MICROPHONE LINE HERHEHERHEHREHRHEHREHRHEHRHERHHEHRHEHRHERE")
                 break
+        else:
+            print("Never got there")
+        #self.m = sr.Microphone(3)
+
 
         with self.m as source:
             self.r.adjust_for_ambient_noise(source)

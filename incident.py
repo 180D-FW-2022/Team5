@@ -16,6 +16,7 @@ class Incident:
         for f, v in self.conditions:
             if not f(v):
                 return False
+        print("INCIDENT", self.name)
         self.past_time = time.time()
         return True
 

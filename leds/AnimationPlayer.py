@@ -1,6 +1,11 @@
 import RPi.GPIO as GPIO
 import time
 
+import sys
+sys.path.append('../')
+
+from leds.Animation import Animation
+
 PIN_R = 25
 PIN_G = 24
 PIN_B = 23
@@ -14,8 +19,9 @@ class AnimationPlayer:
         GPIO.setup(PIN_G,GPIO.OUT)
         GPIO.setup(PIN_R,GPIO.OUT)
 
-        self.currently_playing = False
+        self.playq = []
         self.current_id = 0
+        print("- AnimationPlayer Initialized")
 
     '''
         animation IDs correspond to states of Edd
@@ -28,53 +34,24 @@ class AnimationPlayer:
         cases to consider:
         - active read timeout (hey edd detected but command not uttered after timeout t) - go to state 0
     '''
-    def play(self, action:int):
-        if action == 0:
-            self.currently_playing = False
-            self.current_id = 0
-        elif action == 1: 
-            self.currently_playing = True
-            self.current_id = 1
-            GPIO.output(PIN_G,GPIO.HIGH)
-            time.sleep(1)
-            GPIO.output(PIN_G,GPIO.LOW)
-            time.sleep(1)
-            GPIO.output(PIN_G,GPIO.HIGH)
-            time.sleep(1)
-            GPIO.output(PIN_G,GPIO.LOW)
-            self.currently_playing = False
-            self.current_id = 0
-        elif action == 2:
-            self.currently_playing = True
-            self.current_id = 2
-            GPIO.output(PIN_G,GPIO.HIGH)
-            GPIO.output(PIN_B,GPIO.HIGH)
-        elif action == 3:
-            self.currently_playing = True
-            self.current_id = 3
-            GPIO.output(PIN_G,GPIO.HIGH)
-            GPIO.output(PIN_R,GPIO.HIGH)
-            time.sleep(1)
-            GPIO.output(PIN_G,GPIO.LOW)
-            GPIO.output(PIN_R,GPIO.LOW)
-            time.sleep(1)
-            GPIO.output(PIN_G,GPIO.HIGH)
-            GPIO.output(PIN_R,GPIO.HIGH)
-            time.sleep(1)
-            GPIO.output(PIN_G,GPIO.LOW)
-            GPIO.output(PIN_R,GPIO.LOW)
-            self.currently_playing = False
-            self.current_id = 0
-        elif action == 4:
-            self.currently_playing = True
-            self.current_id = 4
-            GPIO.output(PIN_R,GPIO.HIGH)
-            time.sleep(1)
-            GPIO.output(PIN_R,GPIO.LOW)
-            time.sleep(1)
-            GPIO.output(PIN_R,GPIO.HIGH)
-            time.sleep(1)
-            GPIO.output(PIN_R,GPIO.LOW)
-            self.currently_playing = False
-            self.current_id = 0
+
+    def play(self):
+        while (True):
+            if (len(self.playq) != 0):
+                self.playAnimation()
+            time.sleep(0.1)
+
+    def queueAnimation(self, animation:Animation):
+        self.playq.append(animation)
+
+    def playAnimation(self):
+        # keep this going for persistent animations
+        self.playq[0].play()
+        self.playq.pop()
+
+    def clearAnimation(self):
+        if (len(self.playq) > 0):
+            self.playq.pop()
+        else:
+            self.queueAnimation(Animation(0))
 

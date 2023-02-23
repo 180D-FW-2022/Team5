@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-import { getDatabase } from "firebase/database";
-import {getAuth, signInWithPopup, GoogleAuthProvider} from "firebase/auth";
+import { getDatabase, ref, query, get, set } from "firebase/database";
+import {getAuth, signInWithPopup, GoogleAuthProvider, signOut} from "firebase/auth";
 
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -23,15 +23,43 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
+//get database
+export const db = getDatabase(app);
+
 //Enable Google Login
 export const auth = getAuth(app);
 const googleProvider = new GoogleAuthProvider();
-export const signInWithGoogle = () => {
-  signInWithPopup(auth, googleProvider).then((res) => {
-    console.log(res.user)
-  }).catch((error) => {
-    console.log(error.message)
-  })
-}
+export const signInWithGoogle = async () => {
+  try {
+    const res = await signInWithPopup(auth, googleProvider);
+    const user = res.user;
+    const userID = user.uid
+    const dbref = ref(db, "users/" + userID );
 
-export const db = getDatabase(app);
+    const userData = await get(query(dbref));
+    console.log(userData)
+    if (!userData.exists()) {
+      await set(ref(db, 'users/' + userID), {
+        name: user.displayName,
+        email: user.email,
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    alert(err.message);
+  }
+};
+// export const signInWithGoogle = () => {
+//   signInWithPopup(auth, googleProvider).then((res) => {
+//     console.log(res.user)
+//   }).catch((error) => {
+//     console.log(error.message)
+//   })
+// }
+
+//allow signout
+export const logout = () => {
+  signOut(auth);
+};
+
+

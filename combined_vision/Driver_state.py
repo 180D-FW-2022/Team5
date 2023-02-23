@@ -18,13 +18,13 @@ class DriverState:
         self.ctime = 0  # current time (used to compute FPS)
         self.ptime = 0  # past time (used to compute FPS)
         self.prev_time = 0  # previous time variable, used to set the FPS limit
-        self.fps_lim = 11  # FPS upper limit value, needed for estimating the time for each frame and increasing performances
+        self.fps_lim = 3  # FPS upper limit value, needed for estimating the time for each frame and increasing performances
         self.time_lim = 1. / self.fps_lim  # time window for each frame taken by the webcam
 
         # instantiation of the dlib face detector object
         self.Detector = dlib.get_frontal_face_detector()
         # instantiation of the dlib keypoint detector model
-        self.Predictor = dlib.shape_predictor("./shape_predictor_68_face_landmarks.dat")
+        self.Predictor = dlib.shape_predictor("./combined_vision/shape_predictor_68_face_landmarks.dat")
 
         # instantiation of the eye detector and pose estimator objects
         self.Eye_det = EyeDet(show_processing=False)
@@ -33,7 +33,7 @@ class DriverState:
 
         # instantiation of the attention scorer object, with the various thresholds
         self.Scorer = AttScorer(self.fps_lim,
-            ear_tresh=0.15, \
+            ear_tresh=0.2, \
             ear_time_tresh=2, \
             gaze_tresh=0.2, \
             gaze_time_tresh=2, \
@@ -83,7 +83,9 @@ class DriverState:
 
         # if the frame comes from webcam, flip it so it looks like a mirror.
         if CAPTURE_SOURCE == 0:
-            frame = cv2.flip(frame, 2)
+            # frame = cv2.rotate(frame, cv2.ROTATE_180)
+            # frame = cv2.flip(frame, 1)
+            frame = cv2.flip(frame, 0)
 
         # transform the BGR frame in grayscale
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
@@ -149,6 +151,7 @@ class DriverState:
     # and optionally transmittes the results to the controller
     def runContinuously(self, tx=False):
         while True:
+            time.sleep(0.33)
             delta_time = time.perf_counter() - self.prev_time
 
             # looping too fast
@@ -165,6 +168,7 @@ class DriverState:
                 perclos_score, ear, roll, pitch, yaw, tired, asleep, looking_away, distracted = self.update(verbose=False)
                 if tx and ear != -1:
                     payload = f'{ear},{perclos_score},{roll},{pitch},{yaw},{tired},{asleep},{looking_away},{distracted}'
+                    payload = f'{1 if tired else 0}{1 if asleep else 0}{1 if looking_away else 0}{1 if distracted else 0}'
                     # print(payload)
                     # self.__txToController(payload)
                     self.queue.put(payload)

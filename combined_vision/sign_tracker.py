@@ -31,7 +31,7 @@ def initialize_serial():
 class my_detector():
 
     def __init__(self, imgsz) -> None:
-        weights = "best.pt"
+        weights = "combined_vision/best.pt"
         data = ROOT / 'data/coco128.yaml'
         # Load model
         device= ''
@@ -80,6 +80,13 @@ class my_detector():
         self.history[:-1,:] = self.history[1:,:]
         self.history[-1,:] = modded_pred[0,:] if modded_pred.shape[0] else np.zeros((1,3))
         
+
+        # simplified version of stop sign detection - if big sign, say stop
+        if modded_pred.shape[0]:
+            if modded_pred[0,2] > 40:
+                return "STOP"
+        return None
+
 
         x_diff = np.zeros((self.history.shape[0] - 1,))
         size_diff = np.zeros((self.history.shape[0] - 1,))

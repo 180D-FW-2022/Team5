@@ -117,6 +117,7 @@ def main():
         print(gps.lat())
         print(gps.long())
         print(gps.speed())
+        print()
 
 if __name__ == "__main__":
     main()

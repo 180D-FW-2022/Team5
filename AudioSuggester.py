@@ -22,6 +22,12 @@ class AudioSuggester():
     def warn_speed(self, limit, speed):
         self.q.put("Slow down! Speed limit is " + str(limit) + "mph. Your speed is " + str(speed) + "mph.")
 
+    def slow_down(self):
+        self.q.put("Slow Down!")
+
+    def aggressive(self):
+        self.q.put("Don't be so aggressive")
+
     def blew_stop(self):
         self.q.put("Start slowing down sooner next time")
 

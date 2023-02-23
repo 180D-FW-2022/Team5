@@ -2,11 +2,12 @@ import time
 
 class Incident:
     
-    def __init__(self, name, refract_time, conditions) -> None:
+    def __init__(self, name, refract_time, conditions, complain_fn=None) -> None:
         self.name = name
         self.refract_time = refract_time
         self.conditions = conditions
         self.past_time = time.time() - refract_time
+        self.complain_fn = complain_fn
         pass
 
 
@@ -19,10 +20,10 @@ class Incident:
             if not f(v):
                 return False
         print("INCIDENT", self.name)
+        if self.complain_fn != None:
+            self.complain_fn()
         self.past_time = time.time()
         return True
-
-
 
     def upload_incident(self):
         #upload to firebase

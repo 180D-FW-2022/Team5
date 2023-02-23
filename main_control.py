@@ -88,11 +88,11 @@ class Controller:
         self.accel_sensor = Sensor(10, 0.2)
         self.location_sensor = Sensor(600, 15)
 
-        speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 70)])
-        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1), (self.speed_sensor.not_find_below, 5)])
-        tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)])
-        distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)])
-        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.find_above, 1000)])
+        speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 70)], self.audioSuggester.slow_down)
+        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1), (self.speed_sensor.not_find_below, 5)], self.audioSuggester.blew_stop)
+        tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)], self.audioSuggester.driver_distracted)
+        distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)], self.audioSuggester.driver_distracted)
+        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.find_above, 1000)], self.audioSuggester.aggressive)
 
         self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident, accel_incident]
         self.imu = IMU.IMU()
@@ -170,13 +170,16 @@ class Controller:
         
         accel_arr = list(self.imu.linearAcc())
         self.accel_sensor.push(accel_arr[1])
-        print("accel", accel_arr)
+        
         
         if time.time() > self.gps_prev_time + self.gps_delay:
             self.gps.readGPS()
             self.gps_prev_time = time.time()
             self.speed_sensor.push(self.gps.speed())
             self.location_sensor.push((self.gps.lat(), self.gps.long()))
+
+            print("accel", accel_arr, "speed", self.gps.speed())
+
 
 
         # check for incidents

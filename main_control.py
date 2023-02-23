@@ -176,9 +176,9 @@ class Controller:
 
         # check for incidents
         for inc in self.my_incidents:
-            if inc.name == "Tired While Driving":
+            # if inc.name == "Tired While Driving":
                 # print("testing tired")
-                print(self.sleep_sensor.find_case(1), len(self.sleep_sensor.hist))
+                # print(self.sleep_sensor.find_case(1), len(self.sleep_sensor.hist))
                 # print(self.sleep_sensor.hist)
             if inc.check_incident():
                 #report

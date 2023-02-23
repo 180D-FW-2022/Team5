@@ -99,6 +99,8 @@ class Controller:
 
         self.ser = uart_utils.initialize_serial()
         self.gps = gps.GPS()
+        self.gps_delay = 0.5
+        self.gps_prev_time = time.time() - 0.5
 
 
 
@@ -166,12 +168,15 @@ class Controller:
             if '1' in result[2:]:
                 self.distract_sensor.push(1)
         
-        accel_arr = self.imu.linearAcc()
-        self.accel_sensor.push(np.linalg.norm(accel_arr[:2]))
+        accel_arr = list(self.imu.linearAcc())
+        self.accel_sensor.push(accel_arr[1])
+        print("accel", accel_arr)
         
-        #self.gps.readGPS()
-        self.speed_sensor.push(self.gps.speed())
-        self.location_sensor.push((self.gps.lat(), self.gps.long()))
+        if time.time() > self.gps_prev_time + self.gps_delay:
+            self.gps.readGPS()
+            self.gps_prev_time = time.time()
+            self.speed_sensor.push(self.gps.speed())
+            self.location_sensor.push((self.gps.lat(), self.gps.long()))
 
 
         # check for incidents

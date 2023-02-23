@@ -1,18 +1,17 @@
 #! /usr/bin/python
 import time
-import smbus
+import smbus2
 import signal
 import sys
 from math import radians, cos, sin, asin, sqrt
 
 import pynmea2
 
-BUS = None
 address = 0x42
 
 class GPS:
     def __init__(self):
-        self.BUS = self.__connectBus()
+        self.BUS = self.connectBus()
         self.msg = -1
 
         # State: 
@@ -29,7 +28,7 @@ class GPS:
         try:
             t_read = time.time()
             while True: # Newline, or bad char.
-                c = BUS.read_byte(address)
+                c = self.BUS.read_byte(address)
                 if c == 255:
                     return False
                 elif c == 10:
@@ -40,9 +39,9 @@ class GPS:
             # convert back to string
             response = ''.join(chr(e) for e in response)
             self.msg = pynmea2.parse(response)
-            self.__updateState(self.msg, t_read)
+            self.updateState(self.msg, t_read)
         except IOError:
-            self.__connectBus()
+            self.connectBus()
         except Exception:
             exit("ERROR: exception in GPS code, exiting...")
 
@@ -66,23 +65,23 @@ class GPS:
         t2 = self.state[2]
         
         # calc speed with dt
-        return self.__gpsSpeed(long1, lat1, t1, long2, lat2, t2)
+        return self.gpsSpeed(long1, lat1, t1, long2, lat2, t2)
 
     # Returns haversine distance between 2 lat and long coordinates in miles
-    def __gpsDistance(self, lon1, lat1, lon2, lat2):
-        mi = self.__haversine(lon1, lat1, lon2, lat2)
+    def gpsDistance(self, lon1, lat1, lon2, lat2):
+        mi = self.haversine(lon1, lat1, lon2, lat2)
 
         return mi
 
     # Takes in 2 GPS points in the following format: [lat (deg), long (deg), time (s)]
-    def __gpsSpeed(self, lon1, lat1, t1, lon2, lat2, t2):
-        dx = self.__gpsDistance(lon1, lat1, lon2, lat2) # in miles
+    def gpsSpeed(self, lon1, lat1, t1, lon2, lat2, t2):
+        dx = self.gpsDistance(lon1, lat1, lon2, lat2) # in miles
         dt = (t2 - t1 + 0.01) / 3600.00 # in hours
 
         return (dx/dt)
 
 
-    def __haversine(self, lon1, lat1, lon2, lat2):
+    def haversine(self, lon1, lat1, lon2, lat2):
         """
         Calculate the great circle distance in kilometers between two points
         on the earth (specified in decimal degrees)
@@ -98,19 +97,26 @@ class GPS:
         r = 3956 # Radius of earth in kilometers. Use 3956 for miles. Determines return value units.
         return c * r
 
-    def __connectBus(self):
-        BUS = smbus.SMBus(1)
+    def connectBus(self):
+        BUS = -1
+        try:
+            BUS = smbus2.SMBus(1)
+        except:
+            print("ERROR (GPS): could not connect to GPS")
         return BUS
 
-    def __updateState(self, msg, t_read):
+    def updateState(self, msg, t_read):
         self.prev_state = self.state
         self.state = [msg.longitude, msg.latitude, t_read, \
                 int(msg.num_sats), int(msg.gps_qual)]
 
 def main():
-    connectBus()
-    while True:
-        readGPS()
+    gps = GPS()
+    while True: 
+        gps.read()
+        print(gps.lat())
+        print(gps.long())
+        print(gps.speed())
 
 if __name__ == "__main__":
     main()

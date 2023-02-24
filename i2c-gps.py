@@ -24,7 +24,7 @@ class GPS:
 
     def __init__(self) -> None:
         # This will capture exit when using Ctrl-C
-        self.BUS == None
+        self.BUS = None
         self.connectBus()
         self.address = 0x42
         

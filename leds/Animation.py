@@ -93,5 +93,14 @@ class Animation:
         self.finished = True
 
 if __name__ == "__main__":
-    a = Animation(2)
-    a.play()
+    a1 = Animation(1)
+    a1.play()
+    time.sleep(3)
+    a2 = Animation(2)
+    a2.play()
+    time.sleep(3)
+    a3 = Animation(3)
+    a3.play()
+    time.sleep(3)
+    a4 = Animation(4)
+    a4.play()

@@ -3,13 +3,9 @@ import board
 import neopixel
 import time
 
-NEOPIXEL_PIN = board.D18
+NEOPIXEL_PIN = board.D10
 NUM_PIXELS = 24
 ORDER = neopixel.GRB
-
-PIN_R = 25
-PIN_G = 24
-PIN_B = 23
 
 class Animation:
     def __init__(self, id:int):
@@ -95,3 +91,7 @@ class Animation:
         self.reset()
         self.currently_playing = False
         self.finished = True
+
+if __name__ == "__main__":
+    a = Animation(2)
+    a.play()

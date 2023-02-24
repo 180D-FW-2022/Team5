@@ -27,6 +27,8 @@ class GPS:
         self.BUS = None
         self.connectBus()
         self.address = 0x42
+        self.prev_state = [0, 0, 0, 0, 0]
+        self.state = [0, 0, 0, 0, 0]
         
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 

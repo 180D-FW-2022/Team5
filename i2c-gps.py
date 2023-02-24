@@ -62,6 +62,9 @@ class GPS:
                             if "GNGLL" in gpsChars:
                                 sections = gpsChars.split(',')
                                 self.msg = Message(float(sections[3]) if sections[3] else 0, float(sections[1]) if sections[1] else 0, 0, 0)
+                                return True
+                            else:
+                                return False
                             # msg.latitude = float(sections[1]) if sections[1] else 0
                             # msg.longitude = float(sections[3]) if sections[3] else 0
                             # msg.num_sats = 0
@@ -83,8 +86,8 @@ class GPS:
                     break
                 else:
                     response.append(c)
-            self.parseResponse(response)
-            self.updateState(self.msg, t_read)
+            if self.parseResponse(response):
+                self.updateState(self.msg, t_read)
         except IOError:
             self.connectBus()
         except Exception:

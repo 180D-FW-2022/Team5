@@ -59,8 +59,9 @@ class GPS:
                         # Compare the calculated checksum with the one in the NMEA sentence
                         if (chkVal == int(chkSum, 16)):
                             print(gpsChars)
-                            sections = gpsChars.split(',')
-                            self.msg = Message(float(sections[3]) if sections[3] else 0, float(sections[1]) if sections[1] else 0, 0, 0)
+                            if "GNGLL" in gpsChars:
+                                sections = gpsChars.split(',')
+                                self.msg = Message(float(sections[3]) if sections[3] else 0, float(sections[1]) if sections[1] else 0, 0, 0)
                             # msg.latitude = float(sections[1]) if sections[1] else 0
                             # msg.longitude = float(sections[3]) if sections[3] else 0
                             # msg.num_sats = 0

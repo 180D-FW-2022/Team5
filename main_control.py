@@ -102,9 +102,6 @@ class Controller:
         self.gps_delay = 0.5
         self.gps_prev_time = time.time() - 0.5
 
-        # bootup complete indicator light
-        self.animationPlayer.queueAnimation(Animation(1))
-
 
 
     def init_signs(self):
@@ -150,6 +147,9 @@ class Controller:
 
         self.threadedSpeechDetector.run()
         print("speech processing Thread started")
+
+        # bootup complete indicator light
+        self.animationPlayer.queueAnimation(Animation(1))
 
     def run_iter(self):
         self.stateArbitrator.loop_state_updater()

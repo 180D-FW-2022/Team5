@@ -148,6 +148,9 @@ class Controller:
         self.threadedSpeechDetector.run()
         print("speech processing Thread started")
 
+        # bootup complete indicator light
+        self.animationPlayer.queueAnimation(Animation(1))
+
     def run_iter(self):
         self.stateArbitrator.loop_state_updater()
         # speech things

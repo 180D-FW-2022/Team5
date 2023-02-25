@@ -11,7 +11,7 @@ import DevicePage from "./DevicePage"
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={window.location.pathname || ''}>
       <Routes>
         <Route path="/" element={<Login />}/>
         <Route path="/dashboard" element={<Dashboard />}>

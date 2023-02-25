@@ -13,11 +13,11 @@ export default function App() {
   return (
     <BrowserRouter basename={window.location.pathname || ''}>
       <Routes>
-        <Route path="/" element={<Login />}/>
-        <Route path="/dashboard" element={<Dashboard />}>
+        <Route exact path="/" element={<Login />}/>
+        <Route exact path="/dashboard" element={<Dashboard />}>
         </Route>
-        <Route path="device-info" element={<DevicePage />}/>
-        <Route path="/register" element={<Register />}/>
+        <Route exact path="device-info" element={<DevicePage />}/>
+        <Route exact path="/register" element={<Register />}/>
     
       </Routes>
     </BrowserRouter>

@@ -44,3 +44,21 @@
     transform: rotate(360deg);
   }
 }
+
+.Device-header {
+  background-color: #C6CAED;
+  min-height: 100vh;
+  border: 1px solid white;
+  color: white;
+  padding-left: 30px;
+  padding-right: 30px;
+}
+
+.device-title-container {
+  float: left;
+}
+
+.device-session-selector {
+  padding: 30px;
+  float: right;
+}

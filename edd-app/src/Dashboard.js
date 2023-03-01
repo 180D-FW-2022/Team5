@@ -1,5 +1,8 @@
 // import logo from './logo.svg';
 import './App.css';
+import Device from './Device'
+
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { db } from "./utils/firebase";
 import { onValue, onChildAdded,ref, query, orderByChild } from "firebase/database"
 import { useEffect, useState } from "react";
@@ -7,6 +10,14 @@ import SpeedGraph from './components/SpeedGraph';
 import {auth, logout} from "./utils/firebase.js"
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
+
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+import { Grid } from '@mui/material';
+
 
 function Dashboard() {
 
@@ -16,7 +27,6 @@ function Dashboard() {
   const navigate = useNavigate();
 
   function DeviceButton({data}){
-
     const deviceInfo = () => {
       return navigate("/device-info", {state: {data: data}});
     };
@@ -26,26 +36,27 @@ function Dashboard() {
             <p>{data.deviceID}</p>
         </button>
     )
-    
   }
-  
-  function RegisterButton ({data}){
-  
+
+  function DeviceCard({data}) {
     const deviceInfo = () => {
-      return navigate("/device-info", {state: {data: data}});
+      return navigate("/devices/" + data.deviceID, {state: {data: data}});
     };
-  
-    const register = () => {
-      return navigate("/register");
-    };
-  
-    return(
-        <button onClick={register}>
-            <p>Register</p>
-        </button>
-    )
-    
+
+    return (
+      <Card sx={{ minWidth: 275 }} className="device-card">
+        <CardContent>
+          <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+            {data.deviceID}
+          </Typography>
+        </CardContent>
+        <CardActions>
+          <Button size="small" onClick={deviceInfo}> Details </Button>
+        </CardActions>
+      </Card>
+    );
   }
+  
 
   useEffect(() => {
     if (loading) return;
@@ -66,11 +77,10 @@ function Dashboard() {
       }
       console.log(data)
       setDevices(data)
-    
     })
   }, [user, loading]);
-
   
+
 
   return (
     <div className="App">
@@ -79,15 +89,20 @@ function Dashboard() {
           Dashboard
         </p>
         <div>
-      {devices.map(data => (
-
-        <DeviceButton key={data.deviceID} data ={data}> </DeviceButton>
-      ))}
-      <RegisterButton> </RegisterButton>
+        <Grid
+          container
+          spacing={2}
+          direction="row"
+          justify="flex-start"
+          alignItems="flex-start"
+        >
+            {devices.map(data => (
+              <Grid item xs={12} sm={6} md={3} key={devices.indexOf(data)}>
+                <DeviceCard data ={data}> </DeviceCard>
+              </Grid>
+        ))}
+        </Grid>
     </div>
-        <button className="logout_btn" onClick={logout}>
-          Logout
-         </button>
       </header>
           
     </div>

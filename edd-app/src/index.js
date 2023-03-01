@@ -32,7 +32,7 @@ export default function App() {
         </Route>
         <Route exact path="device-info" element={<DevicePage />}/>
         <Route exact path="/register" element={<Register />}/>
-        <Route path="/devices/:id" element={<Device />}/>
+        <Route exact path="/devices/:id" element={<Device />}/>
       </Routes>
     </BrowserRouter>
 

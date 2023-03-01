@@ -125,6 +125,7 @@ class GPS:
     def gpsSpeed(self, lon1, lat1, t1, lon2, lat2, t2):
         dx = self.gpsDistance(lon1, lat1, lon2, lat2) # in miles
         dt = (t2 - t1 + 0.01) / 3600.00 # in hours
+        print("time", dt, "dist", dx)
 
         return (dx/dt)
 

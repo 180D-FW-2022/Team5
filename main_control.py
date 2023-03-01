@@ -17,7 +17,7 @@ from speech.ThreadedSpeechDetector import ThreadedSpeechDetector
 from speech.StateArbitrator import StateArbitrator
 from AudioSuggester import AudioSuggester
 
-import gps
+import i2cgps as gps
 from firebase_rt import Database
 
 import os

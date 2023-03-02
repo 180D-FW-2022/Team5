@@ -181,7 +181,7 @@ class Controller:
             self.speed_sensor.push(self.gps.speed())
             self.location_sensor.push((self.gps.lat(), self.gps.long()))
 
-            print("accel", accel_arr, "speed", self.gps.speed())
+            print("lat", self.gps.lat(), "long", self.gps.long(),"speed", self.gps.speed())
 
 
 

@@ -38,6 +38,11 @@ class GPS:
 
 
     def parseResponse(self, gpsLine):
+
+        mh = 1.677772270865953
+        bh = -23.04470278463925
+        mv = 1.7457913957407036
+        bv = 88.0251441228947
         if (gpsLine.count(36) == 1):                           # Check #1, make sure '$' doesnt appear twice
             # Check #2, 83 is maximun NMEA sentenace length.
             if len(gpsLine) < 84:
@@ -58,10 +63,10 @@ class GPS:
                             chkVal ^= ord(ch)
                         # Compare the calculated checksum with the one in the NMEA sentence
                         if (chkVal == int(chkSum, 16)):
-                            print(gpsChars)
+                            # print(gpsChars)
                             if "GNGLL" in gpsChars:
                                 sections = gpsChars.split(',')
-                                self.msg = Message(float(sections[3]) if sections[3] else 0, float(sections[1]) if sections[1] else 0, 0, 0)
+                                self.msg = Message(float(sections[3])/100 * mh + bh if sections[3] else 0, float(sections[1])/100 * mv + bv if sections[1] else 0, 0, 0)
                                 return True
                             else:
                                 return False
@@ -125,7 +130,7 @@ class GPS:
     def gpsSpeed(self, lon1, lat1, t1, lon2, lat2, t2):
         dx = self.gpsDistance(lon1, lat1, lon2, lat2) # in miles
         dt = (t2 - t1 + 0.01) / 3600.00 # in hours
-        print("time", dt, "dist", dx)
+        # print("time", dt, "dist", dx)
 
         return (dx/dt)
 

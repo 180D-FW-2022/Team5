@@ -12,10 +12,21 @@ led_thread = threading.Thread(target=ap.play)
 led_thread.start()
 print("LED Thread started")
 
-mtr = MockThreadRunner()
-runner_thread = threading.Thread(target=mtr.start)
-runner_thread.start()
-print("MTR started")
+mtr1 = MockThreadRunner(1)
+runner_thread1 = threading.Thread(target=mtr1.start)
+runner_thread1.start()
+print("MTR1 started")
+
+mtr2 = MockThreadRunner(2)
+runner_thread2 = threading.Thread(target=mtr2.start)
+runner_thread2.start()
+print("MTR2 started")
+
+mtr3 = MockThreadRunner(3)
+runner_thread3 = threading.Thread(target=mtr3.start)
+runner_thread3.start()
+print("MTR3 started")
+
 
 ap.queueAnimation(Animation(1))
 time.sleep(5)

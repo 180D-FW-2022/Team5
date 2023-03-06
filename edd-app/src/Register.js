@@ -41,7 +41,7 @@ export default function Register() {
     update(dbref, {[deviceUID] : {creation: time, user: 0}})
       .then(() => {
         // Data saved successfully!
-        alert("You are user 0");
+        alert("Device: " + deviceUID + " has been registered successfully. You are user 0. ");
       })
       .catch((error) => {
         // The write failed...

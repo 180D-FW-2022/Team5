@@ -60,25 +60,46 @@ function Device() {
         }
         let incidents = Object.values(data.incidents);
 
+        let speed_cnt = 0;
+        let distracted_cnt = 0;
+        let stop_blown_cnt = 0;
+        for (var i = 0; i < incidents.length; i++){
+            if (incidents[i].warning_type == 'speed')
+                speed_cnt++;
+            if (incidents[i].warning_type == 'distracted')
+                distracted_cnt++;
+            if (incidents[i].warning_type == 'stopBlown')
+                stop_blown_cnt++;
+        }
+        console.log([speed_cnt, distracted_cnt, stop_blown_cnt])
+
         return (
-            <Grid
-            container
-            spacing={2}
-            direction="row"
-            justify="flex-start"
-            alignItems="flex-start"
-            >
-                {incidents.map(inc => (
-                    <Grid item xs={12} sm={6} md={3} key={incidents.indexOf(inc)}>
-                        <IncidentCard inc={inc}></IncidentCard>
-                    </Grid>
-                ))}
-            </Grid>
+            <div>
+                <div >
+                    Incidents Counts: <br></br>
+                    Speed: {speed_cnt}, <br></br>
+                    Distracted: {distracted_cnt}, <br></br>
+                    Stop Signs Blown: {stop_blown_cnt} <br></br>
+                </div>
+                <Grid
+                container
+                spacing={2}
+                direction="row"
+                justify="flex-start"
+                alignItems="flex-start"
+                >
+                    {incidents.map(inc => (
+                        <Grid item xs={12} sm={6} md={3} key={incidents.indexOf(inc)}>
+                            <IncidentCard inc={inc}></IncidentCard>
+                        </Grid>
+                    ))}
+                </Grid>
+            </div>
         );
     }
 
     function IncidentCard({inc}) {
-        console.log(inc)
+        // console.log(inc)
         return (
           <Card sx={{ minWidth: 275 }} className="device-card">
             <CardContent>

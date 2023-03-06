@@ -8,6 +8,7 @@
 # an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
 # specific language governing permissions and limitations under the License.
 #
+import time
 
 import argparse
 import os
@@ -173,7 +174,11 @@ def main():
         keyword_paths=[PATH],
         sensitivities=[0.65],
         input_device_index=-1,
-        output_path=None).run()
+        output_path=None).start()
+
+    while True:
+        print("Running")
+        time.sleep(1)
 
 if __name__ == "__main__":
     main()

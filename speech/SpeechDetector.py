@@ -11,6 +11,9 @@ class SpeechDetector():
     def __txToController(self,msg):
         self.ser.write(msg.encode('utf-8'))
 
+    def callback(self):
+        pass
+
     def detect_speech(self):
         print("Starting Speech Detection")
         r = sr.Recognizer()
@@ -56,6 +59,6 @@ class SpeechDetector():
                     text = ""
                     print("Providing Summary")
                 
-
-s =  SpeechDetector()
-s.detect_speech()
+if __name__ == '__main__':
+    s =  SpeechDetector()
+    s.detect_speech()

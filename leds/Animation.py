@@ -2,6 +2,7 @@ import RPi.GPIO as GPIO
 import board
 import neopixel
 import time
+import threading
 
 NEOPIXEL_PIN = board.D10
 NUM_PIXELS = 24
@@ -17,6 +18,8 @@ class Animation:
 
     def play(self):
         print("Actually playing animation: " +  str(self.id))
+        lock = threading.Lock()
+        lock.acquire()
         if self.id == 0:
             self.reset()
             self.currently_playing = False
@@ -28,6 +31,7 @@ class Animation:
             self.animation_suggestionsOn()
         elif self.id == 4:
             self.animation_suggestionsOff()
+        lock.release()
 
     def reset(self):
         self.pixels.fill((0, 0, 0))

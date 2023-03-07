@@ -60,7 +60,8 @@ class PorcupineDemo(Thread):
 
         super(PorcupineDemo, self).__init__()
 
-        self.speech_detector = speech_detector
+        #self.speech_detector = speech_detector
+        self.r = sr.Recognizer()
 
         self._access_key = access_key
         self._library_path = library_path
@@ -96,18 +97,35 @@ class PorcupineDemo(Thread):
                 keyword_paths=self._keyword_paths,
                 sensitivities=self._sensitivities)
 
+            sample_rate = porcupine.sample_rate
+            frame_length = porcupine.frame_length
+            byte_depth = 2 # 16 bit audio is 2-byte audio
+
             recorder = PvRecorder(device_index=self._input_device_index, frame_length=porcupine.frame_length)
             recorder.start()
 
             while True:
                 pcm = recorder.read()
 
+
                 result = porcupine.process(pcm)
                 if result >= 0:
                     recorder.stop()
                     print('[%s] Detected %s' % (str(datetime.now()), keywords[result]))
+                    fix = struct.pack("h" * len(pcm), *pcm)
+                    audio = sr.AudioData(fix, sample_rate, 2)
+                    text = ""
+                    try:
+                        text = self.r.recognize_google(audio).lower()
+                    except sr.UnknownValueError:
+                        print("Google Speech Recognition could not understand audio")
+                        text = ""
+                    except sr.RequestError as e:
+                        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+                        text = ""
+                    print(text)
                     #self.speech_detector.detect_speech(source)
-                    self.speech_detector.detect_speech()
+                    #self.speech_detector.detect_speech()
                     recorder.start()
         except pvporcupine.PorcupineInvalidArgumentError as e:
             args = (

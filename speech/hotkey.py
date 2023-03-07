@@ -9,6 +9,7 @@
 # specific language governing permissions and limitations under the License.
 #
 import time
+import speech_recognition as sr
 import SpeechDetector as sd
 
 import argparse
@@ -98,15 +99,16 @@ class PorcupineDemo(Thread):
             recorder = PvRecorder(device_index=self._input_device_index, frame_length=porcupine.frame_length)
             recorder.start()
 
-            while True:
-                pcm = recorder.read()
+            with sr.Microphone() as source:
+                while True:
+                    pcm = recorder.read()
 
-                result = porcupine.process(pcm)
-                if result >= 0:
-                    recorder.stop()
-                    print('[%s] Detected %s' % (str(datetime.now()), keywords[result]))
-                    self.speech_detector.detect_speech()
-                    recorder.start()
+                    result = porcupine.process(pcm)
+                    if result >= 0:
+                        recorder.stop()
+                        print('[%s] Detected %s' % (str(datetime.now()), keywords[result]))
+                        self.speech_detector.detect_speech(source)
+                        recorder.start()
         except pvporcupine.PorcupineInvalidArgumentError as e:
             args = (
                 self._access_key,

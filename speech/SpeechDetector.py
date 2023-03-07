@@ -11,13 +11,12 @@ class SpeechDetector():
             self.r.non_speaking_duration = 0.26
             self.r.pause_threshold = 0.26
 
-    def detect_speech(self):
+    def detect_speech(self, source):
         t0 = time.time()
 
         print("Starting Speech Detection")
         text = ""
         while True:
-            with sr.Microphone() as source:
                 print("listening...")
                 audio = self.r.listen(source, phrase_time_limit=2.5)
                 print("Done. Sending to API...")

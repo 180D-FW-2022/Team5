@@ -99,16 +99,16 @@ class PorcupineDemo(Thread):
             recorder = PvRecorder(device_index=self._input_device_index, frame_length=porcupine.frame_length)
             recorder.start()
 
-            with sr.Microphone() as source:
-                while True:
-                    pcm = recorder.read()
+            while True:
+                pcm = recorder.read()
 
-                    result = porcupine.process(pcm)
-                    if result >= 0:
-                        recorder.stop()
-                        print('[%s] Detected %s' % (str(datetime.now()), keywords[result]))
-                        self.speech_detector.detect_speech(source)
-                        recorder.start()
+                result = porcupine.process(pcm)
+                if result >= 0:
+                    recorder.stop()
+                    print('[%s] Detected %s' % (str(datetime.now()), keywords[result]))
+                    #self.speech_detector.detect_speech(source)
+                    self.speech_detector.detect_speech()
+                    recorder.start()
         except pvporcupine.PorcupineInvalidArgumentError as e:
             args = (
                 self._access_key,

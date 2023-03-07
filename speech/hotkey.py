@@ -9,6 +9,7 @@
 # specific language governing permissions and limitations under the License.
 #
 import time
+import SpeechDetector as sd
 
 import argparse
 import os
@@ -32,7 +33,8 @@ class PorcupineDemo(Thread):
     """
 
     def __init__(
-            self,
+            self, 
+            speech_detector,
             access_key,
             library_path,
             model_path,
@@ -56,6 +58,8 @@ class PorcupineDemo(Thread):
         """
 
         super(PorcupineDemo, self).__init__()
+
+        self.speech_detector = speech_detector
 
         self._access_key = access_key
         self._library_path = library_path
@@ -94,29 +98,13 @@ class PorcupineDemo(Thread):
             recorder = PvRecorder(device_index=self._input_device_index, frame_length=porcupine.frame_length)
             recorder.start()
 
-            '''
-            if self._output_path is not None:
-                wav_file = wave.open(self._output_path, "w")
-                wav_file.setparams((1, 2, 16000, 512, "NONE", "NONE"))
-
-            print('Using device: %s' % recorder.selected_device)
-
-            print('Listening {')
-            for keyword, sensitivity in zip(keywords, self._sensitivities):
-                print('  %s (%.2f)' % (keyword, sensitivity))
-            print('}')
-            '''
-
             while True:
                 pcm = recorder.read()
 
-                if wav_file is not None:
-                    wav_file.writeframes(struct.pack("h" * len(pcm), *pcm))
-
                 result = porcupine.process(pcm)
                 if result >= 0:
-                    # TODO: CALLBACK RIGHT HERE
                     print('[%s] Detected %s' % (str(datetime.now()), keywords[result]))
+                    self.speech_detector.detect_speech()
         except pvporcupine.PorcupineInvalidArgumentError as e:
             args = (
                 self._access_key,
@@ -167,7 +155,10 @@ def main():
     with open("./.env") as f:
         ACCESS_KEY = f.readline().strip()
 
+    speech_detector = sd.SpeechDetector()
+
     PorcupineDemo(
+        speech_detector=speech_detector,
         access_key=ACCESS_KEY,
         library_path=pvporcupine.LIBRARY_PATH,
         model_path=pvporcupine.MODEL_PATH,
@@ -177,7 +168,7 @@ def main():
         output_path=None).start()
 
     while True:
-        print("Running")
+        print("Running (main thread)")
         time.sleep(1)
 
 if __name__ == "__main__":

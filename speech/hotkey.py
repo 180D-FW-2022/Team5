@@ -1,13 +1,22 @@
-#
-# Copyright 2018-2021 Picovoice Inc.
-#
-# You may not use this file except in compliance with the license. A copy of the license is located in the "LICENSE"
-# file accompanying this source.
-#
-# Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on
-# an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the
-# specific language governing permissions and limitations under the License.
-#
+''' 
+Suppress error messages from portAudio and pyAudio that slow
+down the program and spam the print output space
+'''
+from ctypes import *
+
+# Define our error handler type
+ERROR_HANDLER_FUNC = CFUNCTYPE(None, c_char_p, c_int, c_char_p, c_int, c_char_p)
+def py_error_handler(filename, line, function, err, fmt):
+    pass
+c_error_handler = ERROR_HANDLER_FUNC(py_error_handler)
+asound = cdll.LoadLibrary('libasound.so')
+# Set error handler
+asound.snd_lib_error_set_handler(c_error_handler)
+
+
+''' 
+Now continue with the rest of the program
+'''
 import time
 import speech_recognition as sr
 import SpeechDetector as sd
@@ -97,9 +106,9 @@ class PorcupineDemo(Thread):
                 keyword_paths=self._keyword_paths,
                 sensitivities=self._sensitivities)
 
-            sample_rate = porcupine.sample_rate
-            frame_length = porcupine.frame_length
-            byte_depth = 2 # 16 bit audio is 2-byte audio
+            #sample_rate = porcupine.sample_rate
+            #frame_length = porcupine.frame_length
+            #byte_depth = 2 # 16 bit audio is 2-byte audio
 
             recorder = PvRecorder(device_index=self._input_device_index, frame_length=porcupine.frame_length)
             recorder.start()
@@ -107,25 +116,12 @@ class PorcupineDemo(Thread):
             while True:
                 pcm = recorder.read()
 
-
                 result = porcupine.process(pcm)
                 if result >= 0:
                     recorder.stop()
                     print('[%s] Detected %s' % (str(datetime.now()), keywords[result]))
-                    fix = struct.pack("h" * len(pcm), *pcm)
-                    audio = sr.AudioData(fix, sample_rate, 2)
-                    text = ""
-                    try:
-                        text = self.r.recognize_google(audio).lower()
-                    except sr.UnknownValueError:
-                        print("Google Speech Recognition could not understand audio")
-                        text = ""
-                    except sr.RequestError as e:
-                        print("Could not request results from Google Speech Recognition service; {0}".format(e))
-                        text = ""
-                    print(text)
                     #self.speech_detector.detect_speech(source)
-                    #self.speech_detector.detect_speech()
+                    self.speech_detector.detect_speech()
                     recorder.start()
         except pvporcupine.PorcupineInvalidArgumentError as e:
             args = (

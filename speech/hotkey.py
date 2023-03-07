@@ -69,7 +69,7 @@ class PorcupineDemo(Thread):
 
         super(PorcupineDemo, self).__init__()
 
-        #self.speech_detector = speech_detector
+        self.speech_detector = speech_detector
         self.r = sr.Recognizer()
 
         self._access_key = access_key

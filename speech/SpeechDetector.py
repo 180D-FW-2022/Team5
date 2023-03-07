@@ -18,6 +18,7 @@ class SpeechDetector():
         text = ""
         while True:
                 print("listening...")
+                time.sleep(0.1)
                 audio = self.r.listen(source, phrase_time_limit=2.5)
                 print("Done. Sending to API...")
                 try:

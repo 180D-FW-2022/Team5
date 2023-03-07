@@ -22,8 +22,8 @@ import pvporcupine
 from pvrecorder import PvRecorder
 
 ACCESS_KEY = ""
-PATH = "./Hey-Edward_en_mac_v2_1_0/Hey-Edward_en_mac_v2_1_0.ppn"
-#PATH = "./Hey-Edward_en_raspberry-pi_v2_1_0/Hey-Edward_en_raspberry-pi_v2_1_0.ppn"
+#PATH = "./Hey-Edward_en_mac_v2_1_0/Hey-Edward_en_mac_v2_1_0.ppn"
+PATH = "./Hey-Edward_en_raspberry-pi_v2_1_0/Hey-Edward_en_raspberry-pi_v2_1_0.ppn"
 
 class PorcupineDemo(Thread):
     """

@@ -1,4 +1,4 @@
-from comms import TCPReceiver
+from comms.TCPReceiver import TCPReceiver
 
 tcpr = TCPReceiver()
 tcpr.run()

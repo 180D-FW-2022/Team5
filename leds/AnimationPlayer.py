@@ -6,19 +6,9 @@ sys.path.append('../')
 
 from leds.Animation import Animation
 
-PIN_R = 25
-PIN_G = 24
-PIN_B = 23
-
 # note: the animation player needs to be muiltithreaded
 class AnimationPlayer:
     def __init__(self):
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setwarnings(False)
-        GPIO.setup(PIN_B,GPIO.OUT)
-        GPIO.setup(PIN_G,GPIO.OUT)
-        GPIO.setup(PIN_R,GPIO.OUT)
-
         self.playq = []
         self.current_id = 0
         print("- AnimationPlayer Initialized")

@@ -7,12 +7,12 @@ class TCPReceiver:
         self.serv = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.serv.bind(('0.0.0.0', 8080))
         self.serv.listen(5)
+        self.recq = []
 
     def run(self):
-        while True:
-            conn, addr = self.serv.accept()
-            from_client = ''
-            while True:
-                data = conn.recv(4096)
-                from_client += data.decode('utf_8')
-                print(from_client)
+        conn = self.serv.accept()
+        return conn
+
+    def interpret(self, conn):
+        data = conn.recv(4096)
+        self.recq.append(data.decode('utf_8'))

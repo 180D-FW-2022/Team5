@@ -76,7 +76,7 @@ class Controller:
         self.ref = self.database.get_ref()
 
         self.audioSuggester = AudioSuggester()
-        self.animationSender = AnimationSender()
+        self.animationSender = AnimationSender(False)
         self.stateArbitrator = StateArbitrator(self.animationSender, self.audioSuggester, settings["enable_suggest"])
         self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
     

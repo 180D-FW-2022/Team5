@@ -12,9 +12,9 @@ led_thread.start()
 print("LED Thread started")
 
 while (True):
-    tcpr.run()
+    conn = tcpr.run()
     while (True):
-        tcpr.interpret()
+        tcpr.interpret(conn)
         ap.queueAnimation(Animation(tcpr.recq[0]))
         tcpr.recq.pop()
     

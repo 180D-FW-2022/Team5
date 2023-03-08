@@ -11,8 +11,7 @@ import combined_vision.Driver_state as Driver_state
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
 
-from leds.AnimationPlayer import AnimationPlayer
-from leds.Animation import Animation
+from leds.AnimationSender import AnimationSender
 from speech.ThreadedSpeechDetector import ThreadedSpeechDetector
 from speech.StateArbitrator import StateArbitrator
 from AudioSuggester import AudioSuggester
@@ -77,8 +76,8 @@ class Controller:
         self.ref = self.database.get_ref()
 
         self.audioSuggester = AudioSuggester()
-        self.animationPlayer = AnimationPlayer()
-        self.stateArbitrator = StateArbitrator(self.animationPlayer, self.audioSuggester, settings["enable_suggest"])
+        self.animationSender = AnimationSender()
+        self.stateArbitrator = StateArbitrator(self.animationSender, self.audioSuggester, settings["enable_suggest"])
         self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
     
         self.stop_sensor = Sensor(5,0.2)
@@ -137,7 +136,7 @@ class Controller:
             # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
 
     def init_io(self):
-        self.led_thread = threading.Thread(target=self.animationPlayer.play)
+        self.led_thread = threading.Thread(target=self.animationSender.start)
         self.led_thread.start()
         print("LED Thread started")
 
@@ -149,7 +148,7 @@ class Controller:
         print("speech processing Thread started")
 
         # bootup complete indicator light
-        self.animationPlayer.queueAnimation(Animation(1))
+        self.animationSender.queueSend(1)
 
     def run_iter(self):
         self.stateArbitrator.loop_state_updater()

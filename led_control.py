@@ -15,6 +15,6 @@ while (True):
     conn = tcpr.run()
     while (True):
         tcpr.interpret(conn)
-        ap.queueAnimation(Animation(tcpr.recq[0]))
+        ap.queueAnimation(Animation(int(tcpr.recq[0])))
         tcpr.recq.pop()
     

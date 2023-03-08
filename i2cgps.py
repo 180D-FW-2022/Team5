@@ -36,6 +36,13 @@ class GPS:
     def connectBus(self):
         self.BUS = smbus.SMBus(1)
 
+    def convgps(self, source):
+        # print(source)
+        degmin, endmin = source.split('.')
+        deg = float(degmin[:-2])
+        mins = np.sign(deg) * float(degmin[-2:] + '.' + endmin)
+        # sec = np.sign(deg) * float('0.' + sec) * 100
+        return deg + mins/60
 
     def parseResponse(self, gpsLine):
 
@@ -66,7 +73,7 @@ class GPS:
                             # print(gpsChars)
                             if "GNGLL" in gpsChars:
                                 sections = gpsChars.split(',')
-                                self.msg = Message(float(sections[3])/100 * mh + bh if sections[3] else 0, float(sections[1])/100 * mv + bv if sections[1] else 0, 0, 0)
+                                self.msg = Message(self.convgps(sections[3]) if sections[3] else 0, self.convgps(sections[1]) if sections[1] else 0, 0, 0)
                                 return True
                             else:
                                 return False

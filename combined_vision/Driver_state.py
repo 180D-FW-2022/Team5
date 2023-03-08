@@ -48,6 +48,8 @@ class DriverState:
         else:
             self.cap = self.__initOpenCV()
 
+        self.dir_offset = [0,0,0]
+
 
 
 
@@ -117,6 +119,12 @@ class DriverState:
                 # compute the head pose
                 _, roll, pitch, yaw = self.Head_pose.get_pose(
                     frame=frame, landmarks=landmarks)
+                
+                roll -= self.dir_offset[0]
+                pitch -= self.dir_offset[1]
+                yaw -= self.dir_offset[2]
+
+                print("roll", roll, "pitch", pitch, "yaw", yaw)
 
                 # evaluate the scores for EAR, GAZE and HEAD POSE
                 asleep, looking_away, distracted = self.Scorer.eval_scores(

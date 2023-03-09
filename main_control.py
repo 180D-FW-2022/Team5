@@ -136,26 +136,6 @@ class Controller:
         driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False))
         driver_thread.start()
 
-    def try_uart_read(self):
-        # try reading comms from UART
-        received_data = uart_receiver.read_all(self.ser)
-        # process received string
-        if (len(received_data) != 0):       
-            raw_data_str = uart_utils.byte2str(received_data)
-            # data_src, data_str = uart_receiver.extract_msg(raw_data_str)
-            data_str = raw_data_str
-            data_src = 1
-            print("received: " + data_str + " -from device " + str(data_src))
-
-            # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
-            if (data_src == 1):
-                self.sa.arbitrate_speech(data_str)
-                if (data_str == "4"):
-                    self.audioSuggester.enable_suggestions()
-                if (data_str == "3"):
-                    self.audioSuggester.disable_suggestions()
-            # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
-
     def init_io(self):
         self.led_thread = threading.Thread(target=self.animationSender.start)
         self.led_thread.start()
@@ -197,6 +177,7 @@ class Controller:
             self.gps_prev_time = time.time()
             self.speed_sensor.push(self.gps.speed())
             self.location_sensor.push((self.gps.lat(), self.gps.long()))
+            self.database.uploadGPS(self.gps.lat(), self.gps.long())
 
             print("lat", self.gps.lat(), "long", self.gps.long(),"speed", self.gps.speed())
 

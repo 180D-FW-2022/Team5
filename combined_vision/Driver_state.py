@@ -11,7 +11,7 @@ from Attention_Scorer_Module import AttentionScorer as AttScorer
 from constants import *
 
 class DriverState:
-    def __init__(self, queue, cap=None):
+    def __init__(self, queue, cap=None, calib=None):
         # serial port object for uart. Replace with -1 if not using
         self.queue = queue
 
@@ -49,6 +49,9 @@ class DriverState:
             self.cap = self.__initOpenCV()
 
         self.dir_offset = [0,0,0]
+
+        if calib:
+            self.calib_q = calib
 
 
 
@@ -98,6 +101,9 @@ class DriverState:
         faces = self.Detector(gray)
 
         if len(faces) > 0:  # process the frame only if at least a face is found
+                
+                
+
 
                 # take only the bounding box of the biggest face
                 faces = sorted(faces, key=get_face_area, reverse=True)
@@ -119,6 +125,12 @@ class DriverState:
                 # compute the head pose
                 _, roll, pitch, yaw = self.Head_pose.get_pose(
                     frame=frame, landmarks=landmarks)
+                
+                while not self.calib_q.empty():
+                    self.calib_q.get()
+                    self.dir_offset[0] = roll
+                    self.dir_offset[1] = pitch
+                    self.dir_offset[2] = yaw
                 
                 roll -= self.dir_offset[0]
                 pitch -= self.dir_offset[1]

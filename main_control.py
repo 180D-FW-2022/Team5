@@ -44,8 +44,8 @@ else:
 print("connected cams")
 
 
-def run_driver_detect(queue_object, camera, use_picam=False):
-    ds = Driver_state.DriverState(queue_object, camera)
+def run_driver_detect(queue_object, camera, use_picam=False, calibration_queue=None):
+    ds = Driver_state.DriverState(queue_object, camera, calib=calibration_queue)
     ds.runContinuously(True)
 
 
@@ -112,7 +112,8 @@ class Controller:
 
     def init_driver(self):
         self.driver_q = queue.Queue()
-        driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False))
+        self.calibration_queue = queue.Queue()
+        driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False, self.calibration_queue))
         driver_thread.start()
 
     def try_uart_read(self):

@@ -142,7 +142,7 @@ class AttentionScorer:
         elif self.gaze_counter > 0:
             self.gaze_counter -= 1
 
-        if ((self.roll_tresh is not None and head_roll is not None and abs(head_roll) > self.roll_tresh) or (
+        if ((self.roll_tresh is not None and head_roll is not None and head_roll > self.roll_tresh) or (
                 head_pitch is not None and abs(head_pitch) > self.pitch_tresh) or (
                 head_yaw is not None and abs(head_yaw) > self.yaw_tresh)):
             if not distracted:

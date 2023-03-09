@@ -11,8 +11,10 @@ import combined_vision.Driver_state as Driver_state
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
 
+import pvporcupine
 from leds.AnimationSender import AnimationSender
-from speech.ThreadedSpeechDetector import ThreadedSpeechDetector
+from speech.hotkey import PorcupineDemo
+from speech.SpeechDetector import SpeechDetector
 from speech.StateArbitrator import StateArbitrator
 from AudioSuggester import AudioSuggester
 
@@ -67,7 +69,6 @@ class Controller:
     def __init__(self) -> None:
         with open('config.txt') as f:
             data = f.read()
-            f.close()
 
         settings = json.loads(data)
         self.device = settings["device_id"]
@@ -78,7 +79,27 @@ class Controller:
         self.audioSuggester = AudioSuggester()
         self.animationSender = AnimationSender()
         self.stateArbitrator = StateArbitrator(self.animationSender, self.audioSuggester, settings["enable_suggest"])
-        self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
+        #self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
+        self.speechDetector = SpeechDetector(self.stateArbitrator)
+
+        # Initialize hot key detector
+        with open('./speech/.env') as f:
+            ACCESS_KEY = f.readline().strip()
+        #PATH = "./speech/Hey-Edward_en_mac_v2_1_0/Hey-Edward_en_mac_v2_1_0.ppn"
+        PATH = "./speech/Hey-Edward_en_raspberry-pi_v2_1_0/Hey-Edward_en_raspberry-pi_v2_1_0.ppn"
+
+        # Start the threaded implementation of hot key detection for "Hey Edward"
+        # This object also interfaces with self.speechDetector and runs the Google speech
+        # API calls
+        self.porcupine = PorcupineDemo(
+            speech_detector=self.speechDetector,
+            access_key=ACCESS_KEY,
+            library_path=pvporcupine.LIBRARY_PATH,
+            model_path=pvporcupine.MODEL_PATH,
+            keyword_paths=[PATH],
+            sensitivities=[0.65],
+            input_device_index=-1,
+            output_path=None).start()
     
         self.stop_sensor = Sensor(5,0.2)
         self.sleep_sensor = Sensor(10,0.3)
@@ -116,26 +137,6 @@ class Controller:
         driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False, self.calibration_queue))
         driver_thread.start()
 
-    def try_uart_read(self):
-        # try reading comms from UART
-        received_data = uart_receiver.read_all(self.ser)
-        # process received string
-        if (len(received_data) != 0):       
-            raw_data_str = uart_utils.byte2str(received_data)
-            # data_src, data_str = uart_receiver.extract_msg(raw_data_str)
-            data_str = raw_data_str
-            data_src = 1
-            print("received: " + data_str + " -from device " + str(data_src))
-
-            # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
-            if (data_src == 1):
-                self.sa.arbitrate_speech(data_str)
-                if (data_str == "4"):
-                    self.audioSuggester.enable_suggestions()
-                if (data_str == "3"):
-                    self.audioSuggester.disable_suggestions()
-            # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
-
     def init_io(self):
         self.led_thread = threading.Thread(target=self.animationSender.start)
         self.led_thread.start()
@@ -144,9 +145,6 @@ class Controller:
         self.suggest_thread = threading.Thread(target=self.audioSuggester.run)
         self.suggest_thread.start()
         print("suggest Thread started")
-
-        self.threadedSpeechDetector.run()
-        print("speech processing Thread started")
 
         # bootup complete indicator light
         self.animationSender.queueSend(1)
@@ -180,6 +178,7 @@ class Controller:
             self.gps_prev_time = time.time()
             self.speed_sensor.push(self.gps.speed())
             self.location_sensor.push((self.gps.lat(), self.gps.long()))
+            self.database.uploadGPS(self.gps.lat(), self.gps.long())
 
             print("lat", self.gps.lat(), "long", self.gps.long(),"speed", self.gps.speed())
 

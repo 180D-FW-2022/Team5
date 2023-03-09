@@ -13,7 +13,6 @@ asound = cdll.LoadLibrary('libasound.so')
 # Set error handler
 asound.snd_lib_error_set_handler(c_error_handler)
 
-
 ''' 
 Now continue with the rest of the program
 '''
@@ -31,9 +30,6 @@ from threading import Thread
 import pvporcupine
 from pvrecorder import PvRecorder
 
-ACCESS_KEY = ""
-#PATH = "./Hey-Edward_en_mac_v2_1_0/Hey-Edward_en_mac_v2_1_0.ppn"
-PATH = "./Hey-Edward_en_raspberry-pi_v2_1_0/Hey-Edward_en_raspberry-pi_v2_1_0.ppn"
 
 class PorcupineDemo(Thread):
     """
@@ -44,7 +40,7 @@ class PorcupineDemo(Thread):
 
     def __init__(
             self, 
-            speech_detector,
+            speech_detector, 
             access_key,
             library_path,
             model_path,
@@ -170,6 +166,11 @@ class PorcupineDemo(Thread):
 
 
 def main():
+    ACCESS_KEY = ""
+    # Running as main paths
+    #PATH = "./Hey-Edward_en_mac_v2_1_0/Hey-Edward_en_mac_v2_1_0.ppn"
+    PATH = "./Hey-Edward_en_raspberry-pi_v2_1_0/Hey-Edward_en_raspberry-pi_v2_1_0.ppn"
+
     with open("./.env") as f:
         ACCESS_KEY = f.readline().strip()
 

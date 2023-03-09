@@ -54,8 +54,7 @@ class Database:
 
         try:
             self.gpsref.update(dictionary)
-        except:
-            print("GPS cannot be uploaded")
+        except Exception as e: print(e)
 
     def save_data(self, dictionary):
         f = open("saved_data/" + self.session_id + ".txt", "a+")

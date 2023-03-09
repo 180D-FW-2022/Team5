@@ -18,7 +18,7 @@ Now continue with the rest of the program
 '''
 import time
 import speech_recognition as sr
-import SpeechDetector as sd
+import speech.SpeechDetector as sd
 
 import argparse
 import os

@@ -38,6 +38,9 @@ class SpeechDetector():
         if 'report' in text:
             self.stateArbitrator.enqueue_speech(self.speechmap['report '])
             print("Providing Summary...")
+        elif 'calibrate' in text:
+            self.stateArbitrator.enqueue_speech(self.speechmap['calibrate '])
+            print("Beginning Calibration")
 
         return True
 

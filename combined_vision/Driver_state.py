@@ -101,7 +101,7 @@ class DriverState:
         # find the faces using the dlib face detector
         self.lock.acquire()
         faces = self.Detector(gray)
-        self.locl.release()
+        self.lock.release()
 
         if len(faces) > 0:  # process the frame only if at least a face is found
                 

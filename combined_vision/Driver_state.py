@@ -3,6 +3,7 @@ import dlib
 import numpy as np
 import time
 import serial
+import threading
 
 from Utils import get_face_area
 from Eye_Dector_Module import EyeDetector as EyeDet
@@ -53,7 +54,7 @@ class DriverState:
         if calib:
             self.calib_q = calib
 
-
+        self.lock = threading.Lock()
 
 
 
@@ -98,7 +99,9 @@ class DriverState:
         gray = cv2.bilateralFilter(gray, 5, 10, 10)
 
         # find the faces using the dlib face detector
+        self.lock.acquire()
         faces = self.Detector(gray)
+        self.locl.release()
 
         if len(faces) > 0:  # process the frame only if at least a face is found
                 

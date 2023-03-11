@@ -62,3 +62,20 @@
   padding: 30px;
   float: right;
 }
+
+.device-title-selector-container {
+  padding: 10px;
+}
+
+.incidents-container {
+  clear: both
+}
+
+.inc-summary-container {
+  border: 1px solid black;
+  border-radius: 25px;
+  /* margin-top: 120px; */
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: darkslategrey;
+}

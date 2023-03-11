@@ -20,6 +20,7 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { Grid } from '@mui/material';
+import { fontWeight } from '@mui/system';
 
 function Device() {
     const location = useLocation();
@@ -75,8 +76,8 @@ function Device() {
 
         return (
             <div>
-                <div >
-                    Incidents Counts: <br></br>
+                <div className="inc-summary-container">
+                    <span style={{fontSize: 20, fontWeight: 'bold'}}>Incidents Summary:</span> <br></br>
                     Speed: {speed_cnt}, <br></br>
                     Distracted: {distracted_cnt}, <br></br>
                     Stop Signs Blown: {stop_blown_cnt} <br></br>
@@ -135,7 +136,7 @@ function Device() {
     return (
         <div className="App">
         <header className="Device-header">
-            <div>
+            <div className='device-title-selector-container'>
                 <div className="device-title-container">
                     <p className="title">
                     Device ID: {deviceData.deviceID}
@@ -160,7 +161,7 @@ function Device() {
                     </Box>
                 </div>
             </div>
-            <div>
+            <div className='incidents-container'>
                 <SessionIncidentCards data={curSession}> </SessionIncidentCards>
             </div>
 

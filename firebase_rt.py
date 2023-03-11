@@ -17,8 +17,8 @@ class Database:
         curr_time = datetime.today()
         self.session_id = str(curr_time).replace(" ", "_").replace(".", "_")
 
-        self.ref = db.reference("devices/" + str(device_id) + "/sessions/" + str(self.session_id) + "/incidents")
-        self.gpsref = db.reference("devices/" + str(device_id) + "/sessions/" + str(self.session_id) + "/gps")
+        self.ref = db.reference("devices/" + str(device_id) + "/0/sessions/" + str(self.session_id) + "/incidents")
+        self.gpsref = db.reference("devices/" + str(device_id) + "/0/sessions/" + str(self.session_id) + "/gps")
 
         print("devices/" + str(device_id) + "/sessions/" + str(self.session_id))
     

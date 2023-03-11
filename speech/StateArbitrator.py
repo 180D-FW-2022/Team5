@@ -1,6 +1,7 @@
 import json
 import time
 import threading
+import queue
 
 import sys
 sys.path.append('../')
@@ -9,7 +10,7 @@ from leds.AnimationSender import AnimationSender
 from AudioSuggester import AudioSuggester
 
 class StateArbitrator:
-    def __init__(self, animationSender:AnimationSender, audioSuggester:AudioSuggester):
+    def __init__(self, animationSender:AnimationSender, audioSuggester:AudioSuggester, calibration_queue:queue.Queue):
         self.animationSender = animationSender
         self.audioSuggester = audioSuggester
         self.expecting_cmd = False
@@ -17,6 +18,8 @@ class StateArbitrator:
 
         self.incident_summary = dict()
         self.speech_queue = []
+
+        self.calib_q = calibration_queue
 
         self.incident_summary_lock = threading.Lock()
 
@@ -85,6 +88,8 @@ class StateArbitrator:
                 print("Calibration in progress")
 
                 # TODO: Implement Calibration Logic and Animation
+                self.calib_q.put(1)
+                self.animationSender.queueSend(3)
                 self.t_last_interaction = time.time()
 
         return 0

@@ -78,7 +78,8 @@ class Controller:
 
         self.audioSuggester = AudioSuggester(settings["enable_suggest"])
         self.animationSender = AnimationSender()
-        self.stateArbitrator = StateArbitrator(self.animationSender, self.audioSuggester)
+        self.calibration_queue = queue.Queue()
+        self.stateArbitrator = StateArbitrator(self.animationSender, self.audioSuggester, self.calibration_queue)
         #self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
         self.speechDetector = SpeechDetector(self.stateArbitrator)
 
@@ -142,7 +143,7 @@ class Controller:
 
     def init_driver(self):
         self.driver_q = queue.Queue()
-        self.calibration_queue = queue.Queue()
+        
         driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False, self.calibration_queue))
         driver_thread.start()
 

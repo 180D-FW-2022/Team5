@@ -48,6 +48,8 @@ class ThreadedSpeechDetector:
                     self.stateArbitrator.enqueue_speech(self.speechmap['enable '])
                 elif 'report' in text:
                     self.stateArbitrator.enqueue_speech(self.speechmap['report '])
+                elif 'calibrate' in text:
+                    self.stateArbitrator.enqueue_speech(self.speechmap['calibrate '])
             except sr.UnknownValueError:
                 print("Google Speech Recognition could not understand audio")
             except sr.RequestError as e:

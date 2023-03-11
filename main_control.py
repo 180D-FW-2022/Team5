@@ -76,11 +76,20 @@ class Controller:
         self.database = Database(self.device)
         self.ref = self.database.get_ref()
 
-        self.audioSuggester = AudioSuggester()
+        self.audioSuggester = AudioSuggester(settings["enable_suggest"])
         self.animationSender = AnimationSender()
-        self.stateArbitrator = StateArbitrator(self.animationSender, self.audioSuggester, settings["enable_suggest"])
+        self.stateArbitrator = StateArbitrator(self.animationSender, self.audioSuggester)
         #self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
         self.speechDetector = SpeechDetector(self.stateArbitrator)
+
+        self.stateArbitrator.incident_summary = {
+            "Speeding": 0,
+            "Stop Violation": 0,
+            "Tired While Driving": 0,
+            "Distracted Driver": 0,
+            "High acceleration": 0
+        }
+        self.incident_summary_lock = threading.Lock()
 
         # Initialize hot key detector
         with open('./speech/.env') as f:
@@ -178,7 +187,8 @@ class Controller:
             self.gps_prev_time = time.time()
             self.speed_sensor.push(self.gps.speed())
             self.location_sensor.push((self.gps.lat(), self.gps.long()))
-            self.database.uploadGPS(self.gps.lat(), self.gps.long())
+            if (self.gps.lat() != 0 and self.gps.long() != 0):
+                self.database.uploadGPS(self.gps.lat(), self.gps.long())
 
             print("lat", self.gps.lat(), "long", self.gps.long(),"speed", self.gps.speed())
 
@@ -193,6 +203,9 @@ class Controller:
             if inc.check_incident():
                 #report
                 print("incident:", inc.name)
+                self.incident_summary_lock.acquire()
+                self.stateArbitrator.incident_summary[inc.name] += 1
+                self.incident_summary_lock.release()
 
 if __name__ == '__main__':
     controller = Controller()

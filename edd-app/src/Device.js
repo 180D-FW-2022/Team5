@@ -22,6 +22,19 @@ import Typography from '@mui/material/Typography';
 import { Grid } from '@mui/material';
 import { fontWeight } from '@mui/system';
 
+import L from 'leaflet'
+import { MapContainer, TileLayer, useMap, Marker, Popup, Polyline } from 'react-leaflet'
+import 'leaflet/dist/leaflet.css'
+import icon from 'leaflet/dist/images/marker-icon.png';
+import iconShadow from 'leaflet/dist/images/marker-shadow.png';
+
+let DefaultIcon = L.icon({
+    iconUrl: icon,
+    shadowUrl: iconShadow
+});
+
+L.Marker.prototype.options.icon = DefaultIcon;
+
 function Device() {
     const location = useLocation();
     const deviceData = location.state.data;
@@ -57,7 +70,7 @@ function Device() {
         }
         console.log(data.incidents);
         if (!data.incidents) {
-            return <>Incidents Unavailable</>
+            return <>This session contained no incidents or incidents are not available</>
         }
         let incidents = Object.values(data.incidents);
 
@@ -76,6 +89,7 @@ function Device() {
 
         return (
             <div>
+                <SessionMap data={data}></SessionMap>
                 <div className="inc-summary-container">
                     <span style={{fontSize: 20, fontWeight: 'bold'}}>Incidents Summary:</span> <br></br>
                     Speed: {speed_cnt}, <br></br>
@@ -95,6 +109,50 @@ function Device() {
                         </Grid>
                     ))}
                 </Grid>
+            </div>
+        );
+    }
+
+    function SessionMap({data}) {
+        if (!data.gps){
+            return <>No GPS data found</>
+        }
+        let route = {
+            data: [
+                {
+                from_lat: "12.92415",
+                from_long: "77.67229",
+                id: "0",
+                to_lat: "12.92732",
+                to_long: "77.63575",
+                },
+                {
+                from_lat: "12.96691",
+                from_long: "77.74935",
+                id: "1",
+                to_lat: "12.92768",
+                to_long: "77.62664",
+                }
+            ]
+        };
+        return (
+            <div className="map-outer-container">
+            <MapContainer center={[34.082237, -118.443598]} style={{ width: "100%", height: "100%" }} zoom={11} scrollWheelZoom={false}>
+            <TileLayer
+                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {route.data.map(({id, from_lat, from_long, to_lat, to_long}) => {
+                return <Polyline key={id} positions={[
+                [from_lat, from_long], [to_lat, to_long],
+                ]} color={'red'} />
+            })}
+            <Marker position={[51.505, -0.09]}>
+                <Popup>
+                A pretty CSS3 popup. <br /> Easily customizable.
+                </Popup>
+            </Marker>
+            </MapContainer>
             </div>
         );
     }

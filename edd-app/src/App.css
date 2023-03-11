@@ -79,3 +79,11 @@
   padding: 20px;
   background-color: darkslategrey;
 }
+
+.map-outer-container {
+  height: 400px;
+  border: 1px solid gray;
+  margin-bottom: 30px;
+  margin-left: 30px;
+  margin-right: 30px;
+}

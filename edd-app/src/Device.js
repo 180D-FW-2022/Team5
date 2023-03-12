@@ -70,7 +70,10 @@ function Device() {
         }
         console.log(data.incidents);
         if (!data.incidents) {
-            return <>This session contained no incidents or incidents are not available</>
+            <div>
+                <SessionMap data={data}></SessionMap>
+                return <>This session contained no incidents or incidents are not available</>
+            </div>
         }
         let incidents = Object.values(data.incidents);
 
@@ -117,24 +120,28 @@ function Device() {
         if (!data.gps){
             return <>No GPS data found</>
         }
-        let route = {
-            data: [
-                {
-                from_lat: "12.92415",
-                from_long: "77.67229",
-                id: "0",
-                to_lat: "12.92732",
-                to_long: "77.63575",
-                },
-                {
-                from_lat: "12.96691",
-                from_long: "77.74935",
-                id: "1",
-                to_lat: "12.92768",
-                to_long: "77.62664",
-                }
-            ]
-        };
+        console.log(Object.values(data.gps));
+        let gps_vals = Object.values(data.gps);
+        let gps_route = {
+            data: []
+        }
+
+        // Drawing a GPS polyline
+        let polyline_id = 0;
+        for (var i = 0; i < gps_vals.length - 1; i++) {
+            let cur_line = {
+                from_lat: gps_vals[i].lat,
+                from_long: gps_vals[i].lon,
+                id: polyline_id,
+                to_lat: gps_vals[i+1].lat,
+                to_long: gps_vals[i+1].lon
+            }
+            polyline_id++;
+            gps_route.data.push(cur_line);
+        }
+
+        console.log(gps_route);
+
         return (
             <div className="map-outer-container">
             <MapContainer center={[34.082237, -118.443598]} style={{ width: "100%", height: "100%" }} zoom={11} scrollWheelZoom={false}>
@@ -142,7 +149,7 @@ function Device() {
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
-            {route.data.map(({id, from_lat, from_long, to_lat, to_long}) => {
+            {gps_route.data.map(({id, from_lat, from_long, to_lat, to_long}) => {
                 return <Polyline key={id} positions={[
                 [from_lat, from_long], [to_lat, to_long],
                 ]} color={'red'} />

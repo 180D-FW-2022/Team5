@@ -31,6 +31,10 @@ class Animation:
             self.animation_suggestionsOn()
         elif self.id == 4:
             self.animation_suggestionsOff()
+        elif self.id == 5:
+            self.animation_calibrate()
+        elif self.id == 6:
+            self.animation_report()
         lock.release()
 
     def reset(self):
@@ -80,7 +84,7 @@ class Animation:
     def animation_suggestionsOff(self):
         self.reset()
         self.currently_playing = True
-        self.current_id = 3
+        self.current_id = 4
         self.pixels.fill((100,0,0))
         time.sleep(0.25)
         self.pixels.fill((0,0,0))
@@ -92,6 +96,34 @@ class Animation:
         self.pixels.fill((100,0,0))
         time.sleep(0.25)
         self.pixels.fill((0,0,0))
+        self.reset()
+        self.currently_playing = False
+        self.finished = True
+
+    def animation_calibrate(self):
+        self.reset()
+        self.currently_playing = True
+        self.current_id = 5
+        for i in range(0,NUM_PIXELS):
+            self.pixels[i] = (255,165,0)
+            time.sleep(0.05)
+        for i in range(0,NUM_PIXELS):
+            self.pixels[i] = (0,0,0)
+            time.sleep(0.05)
+        self.reset()
+        self.currently_playing = False
+        self.finished = True
+
+    def animation_report(self):
+        self.reset()
+        self.currently_playing = True
+        self.current_id = 6
+        for i in range(0,NUM_PIXELS):
+            self.pixels[i] = (255,255,255)
+            time.sleep(0.05)
+        for i in range(0,NUM_PIXELS):
+            self.pixels[i] = (255,255,255)
+            time.sleep(0.05)
         self.reset()
         self.currently_playing = False
         self.finished = True

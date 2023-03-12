@@ -78,8 +78,7 @@ class StateArbitrator:
                 self.incident_summary_lock.acquire()
                 cur_incident_summary = self.incident_summary
                 self.incident_summary_lock.release()
-
-                # TODO: Implement Report Animation
+                self.animationSender.queueSend(6)
                 self.audioSuggester.report(cur_incident_summary)
                 self.t_last_interaction = time.time()
                 return 2
@@ -87,9 +86,9 @@ class StateArbitrator:
                 self.expecting_cmd = False
                 print("Calibration in progress")
 
-                # TODO: Implement Calibration Logic and Animation
                 self.calib_q.put(1)
-                self.animationSender.queueSend(3)
+                self.animationSender.queueSend(5)
+                self.audioSuggester.calibration_successful()
                 self.t_last_interaction = time.time()
 
         return 0

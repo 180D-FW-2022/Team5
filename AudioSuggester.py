@@ -53,10 +53,13 @@ class AudioSuggester():
     def say_phrase(self, text):
         self.q.put(text)
 
+    def calibration_successful(self):
+        self.q.put("Calibration successful")
+
     def report(self,incident_summary:dict):
         report_text = "This session, You have had "
         for inc in incident_summary:
-            report_text += incident_summary[inc]
+            report_text += str(incident_summary[inc])
             report_text += " "
             report_text += inc
             report_text += "incidents, "

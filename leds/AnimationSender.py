@@ -9,7 +9,7 @@ ADDR = "192.168.222.96"
 
 class AnimationSender:
     def __init__(self):
-        self.tcpSender = TCPSender(ADDR, False)
+        self.tcpSender = TCPSender(ADDR, True)
         self.sendq = []
 
     def queueSend(self, animation:int):

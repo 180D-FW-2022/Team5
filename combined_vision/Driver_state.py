@@ -51,8 +51,8 @@ class DriverState:
 
         self.dir_offset = [0,0,0]
 
-        if calib:
-            self.calib_q = calib
+        
+        self.calib_q = calib
 
         self.lock = threading.Lock()
 
@@ -60,7 +60,14 @@ class DriverState:
 
     def __initOpenCV(self):
         cv2.setUseOptimized(True)
-        cap = cv2.VideoCapture(CAPTURE_SOURCE)
+        
+        cap = cv2.VideoCapture(CAPTURE_SOURCE, cv2.CAP_V4L2)
+
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+        width = 320
+        height = 240
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
         if not cap.isOpened():
             print("ERROR: Cannot open camera. Exiting...")
             exit(1)

@@ -30,11 +30,17 @@ driver_vendor = "0c45"
 driver_cam = None
 sign_cam = None
 if driver_vendor in res:
-    driver_cam = cv2.VideoCapture(0) 
-    sign_cam = cv2.VideoCapture(2)
+    driver_cam = cv2.VideoCapture(0, cv2.CAP_V4L2)
+    sign_cam = cv2.VideoCapture(2, cv2.CAP_V4L2)
 else:
-    driver_cam = cv2.VideoCapture(2) 
-    sign_cam = cv2.VideoCapture(0)
+    driver_cam = cv2.VideoCapture(2, cv2.CAP_V4L2) 
+    sign_cam = cv2.VideoCapture(0, cv2.CAP_V4L2)
+
+driver_cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+width = 320
+height = 240
+driver_cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+driver_cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     
 # cap = cv2.VideoCapture(0) 
 

@@ -240,6 +240,7 @@ if __name__ == '__main__':
     controller.init_signs()
     controller.init_driver()
     controller.init_io()
+    controller.init_gps()
     
     while True:
         controller.run_iter()

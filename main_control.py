@@ -70,6 +70,12 @@ def run_stop_signs(queue_object, camera, use_picam=False):
             # print(r)
             queue_object.put(r)
 
+def run_gps(queue_object):
+    gps = gps.GPS(queue_object)
+    while True: 
+        time.sleep(0.5)
+        gps.readGPS()
+
 
 class Controller:
     def __init__(self) -> None:
@@ -134,9 +140,9 @@ class Controller:
         self.imu = IMU.IMU()
 
         self.ser = uart_utils.initialize_serial()
-        self.gps = gps.GPS()
-        self.gps_delay = 0.5
-        self.gps_prev_time = time.time() - 0.5
+        # self.gps = gps.GPS()
+        # self.gps_delay = 0.5
+        # self.gps_prev_time = time.time() - 0.5
 
 
 
@@ -152,6 +158,11 @@ class Controller:
         
         driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False, self.calibration_queue))
         driver_thread.start()
+
+    def init_gps(self):
+        self.gps_q = queue.Queue()
+        gps_thread = threading.Thread(target=run_gps, args=(self.gps_q))
+        gps_thread.start()
 
     def init_io(self):
         self.led_thread = threading.Thread(target=self.animationSender.start)
@@ -185,6 +196,14 @@ class Controller:
             if '1' in result[2:]:
                 self.distract_sensor.push(1)
         
+        while not self.gps_q.empty():
+            lat, lon, speed = self.gps_q.get()
+            self.speed_sensor.push(speed)
+            self.location_sensor.push((lat, lon))
+            if (lat != 0 and lon != 0):
+                self.database.uploadGPS(lat, lon)
+
+
         accel_arr = list(self.imu.linearAcc())
         self.accel_sensor.push(accel_arr[1])
         

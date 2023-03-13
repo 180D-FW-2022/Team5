@@ -23,14 +23,14 @@ class GPS:
     def handle_ctrl_c(self, signal, frame):
         sys.exit(130)
 
-    def __init__(self) -> None:
+    def __init__(self, queue_obj) -> None:
         # This will capture exit when using Ctrl-C
         self.BUS = None
         self.connectBus()
         self.address = 0x42
         self.prev_state = [0, 0, 0, 0, 0]
         self.state = [0, 0, 0, 0, 0]
-        
+        self.q = queue_obj
         signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
 
@@ -75,6 +75,7 @@ class GPS:
                             if "GNGLL" in gpsChars:
                                 sections = gpsChars.split(',')
                                 self.msg = Message(self.convgps(sections[3]) if sections[3] else 0, self.convgps(sections[1]) if sections[1] else 0, 0, 0)
+                                
                                 return True
                             else:
                                 return False
@@ -101,6 +102,8 @@ class GPS:
                     response.append(c)
             if self.parseResponse(response):
                 self.updateState(self.msg, t_read)
+                if self.q:
+                    self.q.put((self.lat, self.lon, self.speed))
         except IOError:
             self.connectBus()
         except Exception:

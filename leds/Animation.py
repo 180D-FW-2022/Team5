@@ -119,7 +119,7 @@ class Animation:
         self.currently_playing = True
         self.current_id = 6
         for i in range(0,NUM_PIXELS):
-            self.pixels[i] = (100,100,100d)
+            self.pixels[i] = (100,100,100)
             time.sleep(0.05)
         for i in range(0,NUM_PIXELS):
             self.pixels[i] = (0,0,0)

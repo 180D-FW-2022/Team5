@@ -124,8 +124,8 @@ class Controller:
         self.accel_sensor = Sensor(10, 0.2)
         self.location_sensor = Sensor(600, 15)
 
-        speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 70)], self.audioSuggester.slow_down)
-        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1), (self.speed_sensor.not_find_below, 5)], self.audioSuggester.blew_stop)
+        speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 30)], self.audioSuggester.slow_down)
+        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1)], self.audioSuggester.blew_stop)
         tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)], self.audioSuggester.driver_distracted)
         distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)], self.audioSuggester.driver_distracted)
         accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.find_above, 1000)], self.audioSuggester.aggressive)

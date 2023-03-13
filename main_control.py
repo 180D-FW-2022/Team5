@@ -71,10 +71,10 @@ def run_stop_signs(queue_object, camera, use_picam=False):
             queue_object.put(r)
 
 def run_gps(queue_object):
-    gps = gps.GPS(queue_object)
+    mygps = gps.GPS(queue_object)
     while True: 
         time.sleep(0.5)
-        gps.readGPS()
+        mygps.readGPS()
 
 
 class Controller:

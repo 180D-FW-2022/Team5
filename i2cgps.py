@@ -1,7 +1,7 @@
 #! /usr/bin/python
 import time
 import smbus
-import signal
+# import signal
 import sys
 from math import *
 import numpy as np
@@ -31,7 +31,7 @@ class GPS:
         self.prev_state = [0, 0, 0, 0, 0]
         self.state = [0, 0, 0, 0, 0]
         self.q = queue_obj
-        signal.signal(signal.SIGINT, self.handle_ctrl_c)
+        # signal.signal(signal.SIGINT, self.handle_ctrl_c)
 
 
     def connectBus(self):

@@ -202,21 +202,22 @@ class Controller:
             self.location_sensor.push((lat, lon))
             if (lat != 0 and lon != 0):
                 self.database.uploadGPS(lat, lon)
+            print(lat, lon, speed)
 
 
         accel_arr = list(self.imu.linearAcc())
         self.accel_sensor.push(accel_arr[1])
         
         
-        if time.time() > self.gps_prev_time + self.gps_delay:
-            self.gps.readGPS()
-            self.gps_prev_time = time.time()
-            self.speed_sensor.push(self.gps.speed())
-            self.location_sensor.push((self.gps.lat(), self.gps.long()))
-            if (self.gps.lat() != 0 and self.gps.long() != 0):
-                self.database.uploadGPS(self.gps.lat(), self.gps.long())
+        # if time.time() > self.gps_prev_time + self.gps_delay:
+        #     self.gps.readGPS()
+        #     self.gps_prev_time = time.time()
+        #     self.speed_sensor.push(self.gps.speed())
+        #     self.location_sensor.push((self.gps.lat(), self.gps.long()))
+        #     if (self.gps.lat() != 0 and self.gps.long() != 0):
+        #         self.database.uploadGPS(self.gps.lat(), self.gps.long())
 
-            print("lat", self.gps.lat(), "long", self.gps.long(),"speed", self.gps.speed())
+        #     print("lat", self.gps.lat(), "long", self.gps.long(),"speed", self.gps.speed())
 
 
 

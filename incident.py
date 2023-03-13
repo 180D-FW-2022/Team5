@@ -23,6 +23,7 @@ class Incident:
         if self.complain_fn != None:
             self.complain_fn()
         self.past_time = time.time()
+        self.upload_incident()
         return True
 
     def upload_incident(self):

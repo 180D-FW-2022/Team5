@@ -4,6 +4,7 @@ import smbus
 import signal
 import sys
 from math import *
+import numpy as np
 
 gpsReadInterval = 0.03
 

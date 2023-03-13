@@ -15,4 +15,7 @@ class TCPReceiver:
 
     def interpret(self, conn):
         data = conn.recv(4096)
-        self.recq.append(data.decode('utf_8'))
+        try:
+            self.recq.append(data.decode('utf_8'))
+        except:
+            print("- ERR: TCP Receiver cannot interpret " + str(data))

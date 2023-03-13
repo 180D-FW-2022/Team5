@@ -161,7 +161,7 @@ class Controller:
 
     def init_gps(self):
         self.gps_q = queue.Queue()
-        gps_thread = threading.Thread(target=run_gps, args=(self.gps_q))
+        gps_thread = threading.Thread(target=run_gps, args=(self.gps_q,))
         gps_thread.start()
 
     def init_io(self):

@@ -36,6 +36,10 @@ class AudioSuggester():
     def blew_stop(self):
         if self.should_suggest:
             self.q.put("Start slowing down sooner next time")
+    
+    def near_stop(self):
+        if self.should_suggest:
+            self.q.put("stop sign ahead")
 
     def driver_distracted(self):
         if self.should_suggest:

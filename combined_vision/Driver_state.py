@@ -34,7 +34,7 @@ class DriverState:
 
         # instantiation of the attention scorer object, with the various thresholds
         self.Scorer = AttScorer(self.fps_lim,
-            ear_tresh=0.2, \
+            ear_tresh=0.15, \
             ear_time_tresh=2, \
             gaze_tresh=0.2, \
             gaze_time_tresh=2, \

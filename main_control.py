@@ -65,7 +65,7 @@ def run_stop_signs(queue_object, camera, use_picam=False):
             frame = camera.capture_array()[:,:,:3]
         else:
             _, frame = camera.read()
-        r = det.my_detect(frame, 0.3)
+        r = det.my_detect(frame, 0.4)
         if r:
             # print(r)
             queue_object.put(r)
@@ -73,7 +73,7 @@ def run_stop_signs(queue_object, camera, use_picam=False):
 def run_gps(queue_object):
     mygps = gps.GPS(queue_object)
     while True: 
-        time.sleep(0.5)
+        time.sleep(0.05)
         mygps.readGPS()
 
 
@@ -123,7 +123,7 @@ class Controller:
             input_device_index=-1,
             output_path=None).start()
     
-        self.stop_sensor = Sensor(5,0.2)
+        self.stop_sensor = Sensor(10,0.2)
         self.sleep_sensor = Sensor(10,0.3)
         self.speed_sensor = Sensor(10,0.25)
         self.distract_sensor = Sensor(10,0.3)
@@ -131,12 +131,13 @@ class Controller:
         self.location_sensor = Sensor(600, 15)
 
         speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 30)], self.audioSuggester.slow_down)
-        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1)], self.audioSuggester.blew_stop)
+        near_stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1)], self.audioSuggester.blew_stop)
+        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case_older, (1, 5)), (self.speed_sensor.not_find_below, 5)], self.audioSuggester.blew_stop)
         tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)], self.audioSuggester.driver_distracted)
         distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)], self.audioSuggester.driver_distracted)
-        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.find_above, 1000)], self.audioSuggester.aggressive)
+        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.find_above, 2000)], self.audioSuggester.aggressive)
 
-        self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident, accel_incident]
+        self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident, accel_incident, near_stop_incident]
         self.imu = IMU.IMU()
 
         self.ser = uart_utils.initialize_serial()

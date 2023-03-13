@@ -42,6 +42,15 @@ class Sensor:
         while self.hist and time.time() > self.hist[0][0] + self.hist_length:
             self.hist.pop(0)
         return value in [x[1] for x in self.hist]
+    
+    def find_case_older(self, passed):
+        value, min_age = passed
+        while self.hist and time.time() > self.hist[0][0] + self.hist_length:
+            self.hist.pop(0)
+        max_idx = 0
+        while max_idx < len(self.history) and time.time() - self.hist[max_idx][1] >= min_age:
+            max_idx += 1
+        return value in [x[1] for x in self.hist[:max_idx]]
 
     def get_recent(self):
         return self.hist[-1][1] if self.hist else self.default

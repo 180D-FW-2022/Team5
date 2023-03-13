@@ -105,7 +105,7 @@ class Animation:
         self.currently_playing = True
         self.current_id = 5
         for i in range(0,NUM_PIXELS):
-            self.pixels[i] = (255,165,0)
+            self.pixels[i] = (100,50,0)
             time.sleep(0.05)
         for i in range(0,NUM_PIXELS):
             self.pixels[i] = (0,0,0)
@@ -119,10 +119,10 @@ class Animation:
         self.currently_playing = True
         self.current_id = 6
         for i in range(0,NUM_PIXELS):
-            self.pixels[i] = (255,255,255)
+            self.pixels[i] = (100,100,100)
             time.sleep(0.05)
         for i in range(0,NUM_PIXELS):
-            self.pixels[i] = (255,255,255)
+            self.pixels[i] = (0,0,0)
             time.sleep(0.05)
         self.reset()
         self.currently_playing = False
@@ -140,3 +140,10 @@ if __name__ == "__main__":
     time.sleep(3)
     a4 = Animation(4)
     a4.play()
+    time.sleep(3)
+    a5 = Animation(5)
+    a5.play()
+    time.sleep(3)
+    a6= Animation(6)
+    a6.play()
+    time.sleep(3)

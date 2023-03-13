@@ -210,6 +210,7 @@ class Controller:
             if inc.check_incident():
                 #report
                 print("incident:", inc.name)
+                self.database.uploadData(0, 0, inc.name)
                 self.incident_summary_lock.acquire()
                 self.stateArbitrator.incident_summary[inc.name] += 1
                 self.incident_summary_lock.release()

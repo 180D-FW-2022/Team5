@@ -68,36 +68,45 @@ function Device() {
         if (data === '') {
             return <>Select a Session...</>;
         }
-        console.log(data.incidents);
         if (!data.incidents) {
-            <div>
-                <SessionMap data={data}></SessionMap>
-                return <>This session contained no incidents or incidents are not available</>
-            </div>
+            return (
+                <div>
+                    <SessionMap data={data}></SessionMap>
+                    return <>This session contained no incidents or incidents are not available</>
+                </div>
+            );
         }
         let incidents = Object.values(data.incidents);
 
         let speed_cnt = 0;
         let distracted_cnt = 0;
-        let stop_blown_cnt = 0;
+        let accel_cnt = 0;
+        let stop_cnt = 0;
+        let tired_cnt = 0;
         for (var i = 0; i < incidents.length; i++){
-            if (incidents[i].warning_type == 'speed')
-                speed_cnt++;
-            if (incidents[i].warning_type == 'distracted')
+            if (incidents[i].warning_type == 'Distracted Driver')
                 distracted_cnt++;
-            if (incidents[i].warning_type == 'stopBlown')
-                stop_blown_cnt++;
+            if (incidents[i].warning_type == 'Speeding')
+                speed_cnt++;
+            if (incidents[i].warning_type == 'High acceleration')
+                accel_cnt++;
+            if (incidents[i].warning_type == 'Stop Violation')
+                stop_cnt++;
+            if (incidents[i].warning_type == 'Tired While Driving')
+                tired_cnt++;
         }
-        console.log([speed_cnt, distracted_cnt, stop_blown_cnt])
+        console.log([speed_cnt, distracted_cnt, accel_cnt, stop_cnt, tired_cnt])
 
         return (
             <div>
                 <SessionMap data={data}></SessionMap>
                 <div className="inc-summary-container">
                     <span style={{fontSize: 20, fontWeight: 'bold'}}>Incidents Summary:</span> <br></br>
-                    Speed: {speed_cnt}, <br></br>
+                    Speeding: {speed_cnt}, <br></br>
                     Distracted: {distracted_cnt}, <br></br>
-                    Stop Signs Blown: {stop_blown_cnt} <br></br>
+                    High acceleration: {accel_cnt} <br></br>
+                    Stop violation: {stop_cnt} <br></br>
+                    Tired when Driving: {tired_cnt} <br></br>
                 </div>
                 <Grid
                 container
@@ -126,6 +135,7 @@ function Device() {
             data: []
         }
 
+        let center = [gps_vals[Math.round(gps_vals.length/2)].lat, gps_vals[Math.round(gps_vals.length/2)].lon];
         // Drawing a GPS polyline
         let polyline_id = 0;
         for (var i = 0; i < gps_vals.length - 1; i++) {
@@ -144,7 +154,7 @@ function Device() {
 
         return (
             <div className="map-outer-container">
-            <MapContainer center={[34.082237, -118.443598]} style={{ width: "100%", height: "100%" }} zoom={11} scrollWheelZoom={false}>
+            <MapContainer center={center} style={{ width: "100%", height: "100%" }} zoom={11} scrollWheelZoom={false}>
             <TileLayer
                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

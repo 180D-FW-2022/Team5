@@ -8,6 +8,9 @@ import {auth, logout} from "./utils/firebase.js"
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useNavigate } from "react-router-dom";
 
+import { TextField, Button } from '@mui/material';
+import { height, maxHeight } from '@mui/system';
+
 export default function Register() {
 
 
@@ -59,15 +62,17 @@ export default function Register() {
           Register
         </p>
         <form onSubmit={handleSubmit}>
-      <label>Enter your device ID:
-      <input 
+      <TextField 
         type="text" 
         name="deviceUID" 
+        variant="filled"
         value={inputs.deviceUID || ""} 
         onChange={handleChange}
+        label="Enter your device ID:"
+        style={{width:300}}
       />
-      </label>
-        <input type="submit" />
+
+      <Button type="submit" variant="contained" style={{height:55, marginLeft:30}}> Submit </Button>
     </form>
 
       </header>

@@ -164,11 +164,11 @@ function Device() {
                 [from_lat, from_long], [to_lat, to_long],
                 ]} color={'red'} />
             })}
-            <Marker position={[51.505, -0.09]}>
+            {/* <Marker position={[51.505, -0.09]}>
                 <Popup>
                 A pretty CSS3 popup. <br /> Easily customizable.
                 </Popup>
-            </Marker>
+            </Marker> */}
             </MapContainer>
             </div>
         );
@@ -176,6 +176,10 @@ function Device() {
 
     function IncidentCard({inc}) {
         // console.log(inc)
+        let latlon = "GPS Coordinates Unavailable"
+        if (inc.lat && inc.lon) {
+            latlon = "GPS: " + inc.lat + ", " + inc.lon;
+        }
         return (
           <Card sx={{ minWidth: 275 }} className="device-card">
             <CardContent>
@@ -185,8 +189,8 @@ function Device() {
             <Typography variant="h6" component="div">
                 {inc.warning_type}
             </Typography>
-            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                Inst. Speed: {Math.round(inc.speed * 100)/100} mph
+            <Typography sx={{ fontSize: 14 }} color="text.secondary" component="div">
+                {latlon}
             </Typography>
             </CardContent>
         </Card>

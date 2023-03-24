@@ -8,6 +8,7 @@ from math import radians, cos, sin, asin, sqrt
 import pynmea2
 
 address = 0x42
+gps_interval = 0.04
 
 class GPS:
     def __init__(self):
@@ -42,8 +43,9 @@ class GPS:
             self.updateState(self.msg, t_read)
         except IOError:
             self.connectBus()
-        except Exception:
-            exit("ERROR: exception in GPS code, exiting...")
+        except Exception as e:
+            print(e)
+            #exit("ERROR: exception in GPS code, exiting...")
 
     # Returns most recently read longitude position in decimal format
     def long(self):
@@ -113,10 +115,12 @@ class GPS:
 def main():
     gps = GPS()
     while True: 
-        gps.read()
+        time.sleep(gps_interval)
+        gps.readGPS()
         print(gps.lat())
         print(gps.long())
         print(gps.speed())
+        print()
 
 if __name__ == "__main__":
     main()

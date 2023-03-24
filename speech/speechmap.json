@@ -3,5 +3,6 @@
     "power off ": "2",
     "stop ": "3",
     "enable ": "4",
-    "report ": "5"
+    "report ": "5",
+    "calibrate ": "6"
   }

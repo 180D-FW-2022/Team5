@@ -11,29 +11,36 @@ import combined_vision.Driver_state as Driver_state
 import comms.uart_proc as uart_utils
 import comms.uart_rec as uart_receiver
 
-from leds.AnimationPlayer import AnimationPlayer
-from leds.Animation import Animation
-from speech.ThreadedSpeechDetector import ThreadedSpeechDetector
+import pvporcupine
+from leds.AnimationSender import AnimationSender
+from speech.hotkey import PorcupineDemo
+from speech.SpeechDetector import SpeechDetector
 from speech.StateArbitrator import StateArbitrator
 from AudioSuggester import AudioSuggester
 
-import gps
+import i2cgps as gps
 from firebase_rt import Database
 
 import os
 
 print("connecting cams")
 # res = os.popen("sudo udevadm info --query=all /dev/video0 | grep 'VENDOR_ID\|MODEL_ID\|SERIAL_SHORT'")
-res = os.popen("sudo udevadm info --query=all /dev/video0 | grep 'SERIAL_SHORT'")
+res = os.popen("sudo udevadm info --query=all /dev/video0 | grep 'VENDOR_ID\|MODEL_ID\|SERIAL_SHORT'")
 driver_vendor = "0c45"
 driver_cam = None
 sign_cam = None
 if driver_vendor in res:
-    driver_cam = cv2.VideoCapture(0) 
-    sign_cam = cv2.VideoCapture(2)
+    driver_cam = cv2.VideoCapture(0, cv2.CAP_V4L2)
+    sign_cam = cv2.VideoCapture(2, cv2.CAP_V4L2)
 else:
-    driver_cam = cv2.VideoCapture(2) 
-    sign_cam = cv2.VideoCapture(0)
+    driver_cam = cv2.VideoCapture(2, cv2.CAP_V4L2) 
+    sign_cam = cv2.VideoCapture(0, cv2.CAP_V4L2)
+
+driver_cam.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+width = 320
+height = 240
+driver_cam.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+driver_cam.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
     
 # cap = cv2.VideoCapture(0) 
 
@@ -45,8 +52,8 @@ else:
 print("connected cams")
 
 
-def run_driver_detect(queue_object, camera, use_picam=False):
-    ds = Driver_state.DriverState(queue_object, camera)
+def run_driver_detect(queue_object, camera, use_picam=False, calibration_queue=None):
+    ds = Driver_state.DriverState(queue_object, camera, calib=calibration_queue)
     ds.runContinuously(True)
 
 
@@ -58,17 +65,22 @@ def run_stop_signs(queue_object, camera, use_picam=False):
             frame = camera.capture_array()[:,:,:3]
         else:
             _, frame = camera.read()
-        r = det.my_detect(frame, 0.3)
+        r = det.my_detect(frame, 0.4)
         if r:
             # print(r)
             queue_object.put(r)
+
+def run_gps(queue_object):
+    mygps = gps.GPS(queue_object)
+    while True: 
+        time.sleep(0.05)
+        mygps.readGPS()
 
 
 class Controller:
     def __init__(self) -> None:
         with open('config.txt') as f:
             data = f.read()
-            f.close()
 
         settings = json.loads(data)
         self.device = settings["device_id"]
@@ -76,29 +88,62 @@ class Controller:
         self.database = Database(self.device)
         self.ref = self.database.get_ref()
 
-        self.audioSuggester = AudioSuggester()
-        self.animationPlayer = AnimationPlayer()
-        self.stateArbitrator = StateArbitrator(self.animationPlayer, self.audioSuggester, settings["enable_suggest"])
-        self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
+        self.audioSuggester = AudioSuggester(settings["enable_suggest"])
+        self.animationSender = AnimationSender()
+        self.calibration_queue = queue.Queue()
+        self.stateArbitrator = StateArbitrator(self.animationSender, self.audioSuggester, self.calibration_queue)
+        #self.threadedSpeechDetector = ThreadedSpeechDetector(self.stateArbitrator)
+        self.speechDetector = SpeechDetector(self.stateArbitrator)
+
+        self.stateArbitrator.incident_summary = {
+            "Speeding": 0,
+            "Stop Violation": 0,
+            "Tired While Driving": 0,
+            "Distracted Driver": 0,
+            "High acceleration": 0
+        }
+        self.incident_summary_lock = threading.Lock()
+
+        # Initialize hot key detector
+        with open('./speech/.env') as f:
+            ACCESS_KEY = f.readline().strip()
+        #PATH = "./speech/Hey-Edward_en_mac_v2_1_0/Hey-Edward_en_mac_v2_1_0.ppn"
+        PATH = "./speech/Hey-Edward_en_raspberry-pi_v2_1_0/Hey-Edward_en_raspberry-pi_v2_1_0.ppn"
+
+        # Start the threaded implementation of hot key detection for "Hey Edward"
+        # This object also interfaces with self.speechDetector and runs the Google speech
+        # API calls
+        self.porcupine = PorcupineDemo(
+            speech_detector=self.speechDetector,
+            access_key=ACCESS_KEY,
+            library_path=pvporcupine.LIBRARY_PATH,
+            model_path=pvporcupine.MODEL_PATH,
+            keyword_paths=[PATH],
+            sensitivities=[0.65],
+            input_device_index=-1,
+            output_path=None).start()
     
-        self.stop_sensor = Sensor(5,0.2)
+        self.stop_sensor = Sensor(10,0.2)
         self.sleep_sensor = Sensor(10,0.3)
         self.speed_sensor = Sensor(10,0.25)
         self.distract_sensor = Sensor(10,0.3)
         self.accel_sensor = Sensor(10, 0.2)
         self.location_sensor = Sensor(600, 15)
 
-        speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 70)])
-        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1), (self.speed_sensor.not_find_below, 5)])
-        tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)])
-        distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)])
-        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.find_above, 1000)])
+        speed_incident = Incident("Speeding", 60, [(self.speed_sensor.find_above, 30)], self.audioSuggester.slow_down)
+        near_stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case, 1)], self.audioSuggester.blew_stop)
+        stop_incident = Incident("Stop Violation", 30, [(self.stop_sensor.find_case_older, (1, 5)), (self.speed_sensor.not_find_below, 5)], self.audioSuggester.blew_stop)
+        tired_incident = Incident("Tired While Driving", 30, [(self.sleep_sensor.find_case, 1)], self.audioSuggester.driver_distracted)
+        distract_incident = Incident("Distracted Driver", 30, [(self.distract_sensor.find_case, 1)], self.audioSuggester.driver_distracted)
+        accel_incident = Incident("High acceleration", 30, [(self.accel_sensor.find_above, 2000)], self.audioSuggester.aggressive)
 
-        self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident, accel_incident]
+        self.my_incidents = [speed_incident, stop_incident, tired_incident, distract_incident, accel_incident, near_stop_incident]
         self.imu = IMU.IMU()
 
         self.ser = uart_utils.initialize_serial()
-        self.gps = gps.GPS()
+        # self.gps = gps.GPS()
+        # self.gps_delay = 0.5
+        # self.gps_prev_time = time.time() - 0.5
 
 
 
@@ -111,31 +156,17 @@ class Controller:
 
     def init_driver(self):
         self.driver_q = queue.Queue()
-        driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False))
+        
+        driver_thread = threading.Thread(target=run_driver_detect, args=(self.driver_q, driver_cam, False, self.calibration_queue))
         driver_thread.start()
 
-    def try_uart_read(self):
-        # try reading comms from UART
-        received_data = uart_receiver.read_all(self.ser)
-        # process received string
-        if (len(received_data) != 0):       
-            raw_data_str = uart_utils.byte2str(received_data)
-            # data_src, data_str = uart_receiver.extract_msg(raw_data_str)
-            data_str = raw_data_str
-            data_src = 1
-            print("received: " + data_str + " -from device " + str(data_src))
-
-            # Speech Detection connected to Teensy UART Pins 9/10 (Serial2)
-            if (data_src == 1):
-                self.sa.arbitrate_speech(data_str)
-                if (data_str == "4"):
-                    self.audioSuggester.enable_suggestions()
-                if (data_str == "3"):
-                    self.audioSuggester.disable_suggestions()
-            # Camera (Stop Sign Detection) connected to Teensy UART Pins 7/8
+    def init_gps(self):
+        self.gps_q = queue.Queue()
+        gps_thread = threading.Thread(target=run_gps, args=(self.gps_q,))
+        gps_thread.start()
 
     def init_io(self):
-        self.led_thread = threading.Thread(target=self.animationPlayer.play)
+        self.led_thread = threading.Thread(target=self.animationSender.start)
         self.led_thread.start()
         print("LED Thread started")
 
@@ -143,8 +174,8 @@ class Controller:
         self.suggest_thread.start()
         print("suggest Thread started")
 
-        self.threadedSpeechDetector.run()
-        print("speech processing Thread started")
+        # bootup complete indicator light
+        self.animationSender.queueSend(1)
 
     def run_iter(self):
         self.stateArbitrator.loop_state_updater()
@@ -166,25 +197,51 @@ class Controller:
             if '1' in result[2:]:
                 self.distract_sensor.push(1)
         
-        accel_arr = self.imu.linearAcc()
-        self.accel_sensor.push(np.linalg.norm(accel_arr[:2]))
+        while not self.gps_q.empty():
+            lat, lon, speed = self.gps_q.get()
+            self.speed_sensor.push(speed)
+            self.location_sensor.push((lat, lon))
+            if (lat != 0 and lon != 0):
+                self.database.uploadGPS(lat, lon)
+            print(lat, lon, speed)
+
+
+        accel_arr = list(self.imu.linearAcc())
+        self.accel_sensor.push(accel_arr[1])
         
-        #self.gps.readGPS()
-        self.speed_sensor.push(self.gps.speed())
-        self.location_sensor.push((self.gps.lat(), self.gps.long()))
+        
+        # if time.time() > self.gps_prev_time + self.gps_delay:
+        #     self.gps.readGPS()
+        #     self.gps_prev_time = time.time()
+        #     self.speed_sensor.push(self.gps.speed())
+        #     self.location_sensor.push((self.gps.lat(), self.gps.long()))
+        #     if (self.gps.lat() != 0 and self.gps.long() != 0):
+        #         self.database.uploadGPS(self.gps.lat(), self.gps.long())
+
+        #     print("lat", self.gps.lat(), "long", self.gps.long(),"speed", self.gps.speed())
+
 
 
         # check for incidents
         for inc in self.my_incidents:
+            # if inc.name == "Tired While Driving":
+                # print("testing tired")
+                # print(self.sleep_sensor.find_case(1), len(self.sleep_sensor.hist))
+                # print(self.sleep_sensor.hist)
             if inc.check_incident():
                 #report
                 print("incident:", inc.name)
+                self.database.uploadData(0, 0, inc.name)
+                self.incident_summary_lock.acquire()
+                self.stateArbitrator.incident_summary[inc.name] += 1
+                self.incident_summary_lock.release()
 
 if __name__ == '__main__':
     controller = Controller()
     controller.init_signs()
     controller.init_driver()
     controller.init_io()
+    controller.init_gps()
     
     while True:
         controller.run_iter()

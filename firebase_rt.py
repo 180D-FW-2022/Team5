@@ -17,7 +17,8 @@ class Database:
         curr_time = datetime.today()
         self.session_id = str(curr_time).replace(" ", "_").replace(".", "_")
 
-        self.ref = db.reference("devices/" + str(device_id) + "/sessions/" + str(self.session_id) + "/incidents")
+        self.ref = db.reference("devices/" + str(device_id) + "/0/sessions/" + str(self.session_id) + "/incidents")
+        self.gpsref = db.reference("devices/" + str(device_id) + "/0/sessions/" + str(self.session_id) + "/gps")
 
         print("devices/" + str(device_id) + "/sessions/" + str(self.session_id))
     
@@ -41,6 +42,19 @@ class Database:
         except:
             print("could not upload")
             self.save_data(dictionary)
+
+    def uploadGPS(self, lat, lon):
+        curr_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        key = str(curr_time)
+        dictionary = {
+            key: {
+            "lat": lat,
+            "lon": lon
+        }}
+
+        try:
+            self.gpsref.update(dictionary)
+        except Exception as e: print(e)
 
     def save_data(self, dictionary):
         f = open("saved_data/" + self.session_id + ".txt", "a+")

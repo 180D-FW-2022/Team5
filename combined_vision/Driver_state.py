@@ -3,6 +3,7 @@ import dlib
 import numpy as np
 import time
 import serial
+import threading
 
 from Utils import get_face_area
 from Eye_Dector_Module import EyeDetector as EyeDet
@@ -11,7 +12,7 @@ from Attention_Scorer_Module import AttentionScorer as AttScorer
 from constants import *
 
 class DriverState:
-    def __init__(self, queue, cap=None):
+    def __init__(self, queue, cap=None, calib=None):
         # serial port object for uart. Replace with -1 if not using
         self.queue = queue
 
@@ -33,7 +34,7 @@ class DriverState:
 
         # instantiation of the attention scorer object, with the various thresholds
         self.Scorer = AttScorer(self.fps_lim,
-            ear_tresh=0.2, \
+            ear_tresh=0.15, \
             ear_time_tresh=2, \
             gaze_tresh=0.2, \
             gaze_time_tresh=2, \
@@ -48,13 +49,25 @@ class DriverState:
         else:
             self.cap = self.__initOpenCV()
 
+        self.dir_offset = [0,0,0]
 
+        
+        self.calib_q = calib
+
+        self.lock = threading.Lock()
 
 
 
     def __initOpenCV(self):
         cv2.setUseOptimized(True)
-        cap = cv2.VideoCapture(CAPTURE_SOURCE)
+        
+        cap = cv2.VideoCapture(CAPTURE_SOURCE, cv2.CAP_V4L2)
+
+        cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc('M', 'J', 'P', 'G'))
+        width = 320
+        height = 240
+        cap.set(cv2.CAP_PROP_FRAME_WIDTH, width)
+        cap.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
         if not cap.isOpened():
             print("ERROR: Cannot open camera. Exiting...")
             exit(1)
@@ -93,9 +106,14 @@ class DriverState:
         gray = cv2.bilateralFilter(gray, 5, 10, 10)
 
         # find the faces using the dlib face detector
+        self.lock.acquire()
         faces = self.Detector(gray)
+        self.lock.release()
 
         if len(faces) > 0:  # process the frame only if at least a face is found
+                
+                
+
 
                 # take only the bounding box of the biggest face
                 faces = sorted(faces, key=get_face_area, reverse=True)
@@ -117,6 +135,18 @@ class DriverState:
                 # compute the head pose
                 _, roll, pitch, yaw = self.Head_pose.get_pose(
                     frame=frame, landmarks=landmarks)
+                
+                while not self.calib_q.empty():
+                    self.calib_q.get()
+                    self.dir_offset[0] = roll
+                    self.dir_offset[1] = pitch
+                    self.dir_offset[2] = yaw
+                
+                roll -= self.dir_offset[0]
+                pitch -= self.dir_offset[1]
+                yaw -= self.dir_offset[2]
+
+                print("roll", roll, "pitch", pitch, "yaw", yaw)
 
                 # evaluate the scores for EAR, GAZE and HEAD POSE
                 asleep, looking_away, distracted = self.Scorer.eval_scores(

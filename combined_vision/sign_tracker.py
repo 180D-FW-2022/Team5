@@ -83,7 +83,8 @@ class my_detector():
 
         # simplified version of stop sign detection - if big sign, say stop
         if modded_pred.shape[0]:
-            if modded_pred[0,2] > 40:
+            # print("stop size:", modded_pred[0,2])
+            if modded_pred[0,2] > 13:
                 return "STOP"
         return None
 
